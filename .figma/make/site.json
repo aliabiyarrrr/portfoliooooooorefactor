@@ -1,0 +1,10 @@
+{
+  "description": "Showcase photography and filmmaking projects across diverse categories with a minimalistic, animated portfolio featuring a full-screen photo homepage.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
