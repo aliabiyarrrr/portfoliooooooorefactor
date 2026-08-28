@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from 'react'
 
 export function AboutPage() {
   const [headerIn, setHeaderIn] = useState(false)
-  const bioRef    = useRef<HTMLDivElement>(null)
-  const infoRef   = useRef<HTMLDivElement>(null)
+  const bioRef = useRef<HTMLDivElement>(null)
+  const infoRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
-  const [bioIn,    setBioIn]    = useState(false)
-  const [infoIn,   setInfoIn]   = useState(false)
+  const [bioIn, setBioIn] = useState(false)
+  const [infoIn, setInfoIn] = useState(false)
   const [footerIn, setFooterIn] = useState(false)
 
   useEffect(() => {
@@ -17,19 +17,31 @@ export function AboutPage() {
   }, [])
 
   useEffect(() => {
-    const pairs: [React.RefObject<HTMLDivElement | null>, (v: boolean) => void][] = [
+    const pairs: [
+      React.RefObject<HTMLDivElement | null>,
+      (v: boolean) => void
+    ][] = [
       [bioRef, setBioIn],
       [infoRef, setInfoIn],
       [footerRef, setFooterIn],
     ]
+
     const observers = pairs.map(([ref, setter]) => {
       const obs = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) { setter(true); obs.disconnect() } },
+        ([e]) => {
+          if (e.isIntersecting) {
+            setter(true)
+            obs.disconnect()
+          }
+        },
         { threshold: 0.08 }
       )
+
       if (ref.current) obs.observe(ref.current)
+
       return obs
     })
+
     return () => observers.forEach((o) => o.disconnect())
   }, [])
 
@@ -40,10 +52,26 @@ export function AboutPage() {
   })
 
   const socials = [
-    { label: 'Instagram', href: 'https://instagram.com/aliabiyar', handle: '@aliabiyar' },
-    { label: 'Telegram',  href: 'https://t.me/aliabiyar',          handle: '@aliabiyar' },
-    { label: 'WhatsApp',  href: 'https://wa.me/989124362179',       handle: '+98 912 436 2179' },
-    { label: 'Email',     href: 'mailto:a.abiyar@gmail.com',        handle: 'a.abiyar@gmail.com' },
+    {
+      label: 'Instagram',
+      href: 'https://instagram.com/aliabiyar',
+      handle: '@aliabiyar',
+    },
+    {
+      label: 'Telegram',
+      href: 'https://t.me/aliabiyar',
+      handle: '@aliabiyar',
+    },
+    {
+      label: 'WhatsApp',
+      href: 'https://wa.me/989124362179',
+      handle: '+98 912 436 2179',
+    },
+    {
+      label: 'Email',
+      href: 'mailto:a.abiyar@gmail.com',
+      handle: 'a.abiyar@gmail.com',
+    },
   ]
 
   return (
@@ -57,12 +85,19 @@ export function AboutPage() {
         <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-10">
           About
         </p>
+
         <blockquote
           className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] max-w-3xl"
-          style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', lineHeight: 1.2, letterSpacing: '-0.015em' }}
+          style={{
+            fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
+            lineHeight: 1.2,
+            letterSpacing: '-0.015em',
+          }}
         >
-          "I make photographs about people, places and things worth{' '}
-          <em style={{ color: 'rgba(240,237,232,0.55)' }}>looking at twice.</em>"
+          Different projects.{' '}
+          <em style={{ color: 'rgba(240,237,232,0.55)' }}>
+            Same attention to detail.
+          </em>
         </blockquote>
       </div>
 
@@ -75,46 +110,53 @@ export function AboutPage() {
         className="grid md:grid-cols-[5fr_6fr] gap-0"
         style={reveal(bioIn, 60)}
       >
+
         {/* Left: portrait */}
         <div
           className="overflow-hidden bg-[#0f0e0d] max-h-[420px] md:max-h-[680px]"
           style={{ aspectRatio: '4/5' }}
         >
           <img
-            src="https://images.unsplash.com/photo-1568038479111-87bf80659645?w=900&h=1125&fit=crop&auto=format"
-            alt="Ali Abiyar — photographer"
+            src="/DSC01972.jpg"
+            alt="Ali Abiyar — photographer and filmmaker"
             className="w-full h-full object-cover"
-            style={{ filter: 'brightness(0.82) saturate(0.9)', objectPosition: 'center top' }}
+            style={{
+              filter: 'brightness(0.82) saturate(0.9)',
+              objectPosition: 'center top',
+            }}
           />
         </div>
 
         {/* Right: bio text */}
-        <div className="px-8 md:px-14 py-12 md:py-16 flex flex-col justify-between">
+        <div className="px-8 md:px-14 py-12 md:py-16 flex flex-col justify-center">
           <div className="flex flex-col gap-6 max-w-md">
+
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
-I’m Ali Abiyar, a photographer and filmmaker based in Tehran.
-
-I started photography in 2009, and since 2018, photography, filmmaking, and content creation have been my full-time work.
-
-Fashion is where I feel most at home, but I enjoy taking on new challenges and working across different kinds of projects. What I like most is the whole process — from the first idea and moodboard to the shoot, editing, and final delivery.
-
-I care about clean, considered work and getting the best out of every project, whatever the subject or field.
-
-Based in Tehran. Available worldwide.            </p>
-            <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
-              He approaches each project — whether a studio shoot, a restaurant interior, or a short film — with the same method: study the space, wait for the right light, and make as few frames as necessary.
+              I’m Ali Abiyar, a photographer and filmmaker based in Tehran.
             </p>
+
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
-              His personal series — including <em>Night City</em>, <em>Faces</em>, and <em>Monologue</em> — are ongoing archives shot without retouching or direction, returned to across months and years.
+              I started photography in 2009, and since 2018, photography,
+              filmmaking, and content creation have been my full-time work.
             </p>
+
+            <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
+              Fashion is where I feel most at home, but I enjoy taking on new
+              challenges and working across different kinds of projects. What
+              I like most is the whole process — from the first idea and
+              moodboard to the shoot, editing, and final delivery.
+            </p>
+
+            <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
+              I care about clean, considered work and getting the best out of
+              every project, whatever the subject or field.
+            </p>
+
+            <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
+              Based in Tehran. Available worldwide.
+            </p>
+
           </div>
-
-          {/* Quiet year / medium line */}
-          <p
-            className="mt-10 text-[rgba(240,237,232,0.3)] text-[0.6rem] tracking-[0.22em] uppercase"
-          >
-            Digital &amp; 35mm film
-          </p>
         </div>
       </div>
 
@@ -124,35 +166,37 @@ Based in Tehran. Available worldwide.            </p>
         className="grid md:grid-cols-3 border-t border-[rgba(240,237,232,0.06)]"
         style={reveal(infoIn, 80)}
       >
+
         {/* Based in */}
-        <div
-          className="px-8 md:px-16 py-10 md:py-14 border-b md:border-b-0 border-r-0 md:border-r border-[rgba(240,237,232,0.06)]"
-        >
+        <div className="px-8 md:px-16 py-10 md:py-14 border-b md:border-b-0 border-r-0 md:border-r border-[rgba(240,237,232,0.06)]">
           <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-5">
             Based in
           </p>
-          <p className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] text-lg">Tehran</p>
-          <p
-            className="font-[Cormorant_Garamond] font-bold text-[rgba(240,237,232,0.38)] text-lg"
-            style={{ fontStyle: 'italic' }}
-          >
-            / Berlin
+
+          <p className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] text-lg">
+            Tehran
           </p>
         </div>
 
         {/* Selected services */}
-        <div
-          className="px-8 md:px-16 py-10 md:py-14 border-b md:border-b-0 border-r-0 md:border-r border-[rgba(240,237,232,0.06)]"
-        >
+        <div className="px-8 md:px-16 py-10 md:py-14 border-b md:border-b-0 border-r-0 md:border-r border-[rgba(240,237,232,0.06)]">
           <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-5">
             Selected services
           </p>
+
           <ul className="flex flex-col gap-2">
-            {['Fashion', 'Commercial', 'Food & Hospitality', 'Portraits'].map((s) => (
+            {[
+              'Fashion',
+              'Commercial',
+              'Food & Hospitality',
+              'Portraits',
+            ].map((s) => (
               <li
                 key={s}
                 className="text-[rgba(240,237,232,0.55)] text-[0.78rem] font-light"
-                style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
+                style={{
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                }}
               >
                 {s}
               </li>
@@ -165,6 +209,7 @@ Based in Tehran. Available worldwide.            </p>
           <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-5">
             Selected clients
           </p>
+
           <ul className="flex flex-col gap-2">
             {[
               'Rosehip Skincare',
@@ -175,15 +220,16 @@ Based in Tehran. Available worldwide.            </p>
               <li
                 key={c}
                 className="text-[rgba(240,237,232,0.55)] text-[0.78rem] font-light"
-                style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
+                style={{
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                }}
               >
                 {c}
               </li>
             ))}
           </ul>
-          <p
-            className="mt-4 text-[rgba(240,237,232,0.18)] text-[0.6rem] tracking-[0.22em] uppercase"
-          >
+
+          <p className="mt-4 text-[rgba(240,237,232,0.18)] text-[0.6rem] tracking-[0.22em] uppercase">
             + others undisclosed
           </p>
         </div>
@@ -198,6 +244,7 @@ Based in Tehran. Available worldwide.            </p>
         <p className="text-[rgba(240,237,232,0.28)] text-[0.6rem] tracking-[0.22em] uppercase mb-8">
           Reach me
         </p>
+
         <div className="flex flex-wrap gap-x-10 gap-y-5">
           {socials.map((s) => (
             <a
@@ -209,10 +256,13 @@ Based in Tehran. Available worldwide.            </p>
             >
               <span
                 className="text-[0.6rem] tracking-[0.22em] uppercase transition-colors duration-300"
-                style={{ color: 'rgba(240,237,232,0.25)' }}
+                style={{
+                  color: 'rgba(240,237,232,0.25)',
+                }}
               >
                 {s.label}
               </span>
+
               <span
                 className="text-sm font-light transition-colors duration-300 group-hover:text-[rgba(240,237,232,0.9)]"
                 style={{
@@ -230,4 +280,3 @@ Based in Tehran. Available worldwide.            </p>
     </section>
   )
 }
-
