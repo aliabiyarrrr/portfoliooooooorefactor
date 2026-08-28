@@ -5,7 +5,6 @@ import { Nav } from './components/Nav'
 import { HomeSection } from './components/HomeSection'
 import { WorkSection } from './components/WorkSection'
 import { ProjectDetail } from './components/ProjectDetail'
-import { ServicesPage } from './components/ServicesPage'
 import { AboutPage } from './components/AboutPage'
 import { ContactPage } from './components/ContactPage'
 
@@ -28,22 +27,46 @@ function getPageFromURL(): {
   }
 
   if (path === '/contact') {
-    return { page: 'contact', projectId: null, category: null }
+    return {
+      page: 'contact',
+      projectId: null,
+      category: null,
+    }
   }
 
   if (path === '/about') {
-    return { page: 'about', projectId: null, category: null }
-  }
-
-  if (path === '/services') {
-    return { page: 'services', projectId: null, category: null }
+    return {
+      page: 'about',
+      projectId: null,
+      category: null,
+    }
   }
 
   if (path === '/work' || path === '/projects') {
-    return { page: 'work', projectId: null, category: null }
+    return {
+      page: 'work',
+      projectId: null,
+      category: null,
+    }
   }
 
-  return { page: 'home', projectId: null, category: null }
+  /*
+   * Services is intentionally kept in the codebase
+   * but is currently hidden from the website.
+   */
+  if (path === '/services') {
+    return {
+      page: 'home',
+      projectId: null,
+      category: null,
+    }
+  }
+
+  return {
+    page: 'home',
+    projectId: null,
+    category: null,
+  }
 }
 
 function getURL(
@@ -59,11 +82,11 @@ function getURL(
     if (category) {
       return `/work?category=${encodeURIComponent(category)}`
     }
+
     return '/work'
   }
 
   if (page === 'about') return '/about'
-  if (page === 'services') return '/services'
   if (page === 'contact') return '/contact'
 
   return '/'
@@ -112,7 +135,10 @@ export default function App() {
       setActiveCat(currentURL.category)
       setActiveProject(project)
 
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant',
+      })
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -126,7 +152,19 @@ export default function App() {
 
   const navigate = useCallback(
     (p: Page, cat?: WorkCategory) => {
-      const url = getURL(p, null, cat ?? null)
+      /*
+       * Services is temporarily disabled.
+       * The page/component itself is not deleted.
+       */
+      if (p === 'services') {
+        return
+      }
+
+      const url = getURL(
+        p,
+        null,
+        cat ?? null
+      )
 
       window.history.pushState({}, '', url)
 
@@ -137,7 +175,10 @@ export default function App() {
         setActiveProject(null)
       }
 
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant',
+      })
     },
     []
   )
@@ -153,7 +194,10 @@ export default function App() {
     setPage('project')
     setActiveCat(null)
 
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    })
   }, [])
 
   /* ── Back to work ── */
@@ -165,7 +209,10 @@ export default function App() {
     setActiveProject(null)
     setActiveCat(null)
 
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    })
   }, [])
 
   return (
@@ -198,12 +245,6 @@ export default function App() {
           />
         )}
 
-        {page === 'services' && (
-          <ServicesPage
-            onContact={() => navigate('contact')}
-          />
-        )}
-
         {page === 'about' && (
           <AboutPage />
         )}
@@ -213,27 +254,6 @@ export default function App() {
         )}
 
       </main>
-
-      {page !== 'home' &&
-        page !== 'about' &&
-        page !== 'project' &&
-        page !== 'services' &&
-        page !== 'contact' && (
-          <footer className="border-t border-[rgba(240,237,232,0.07)] px-8 md:px-12 py-7 flex items-center justify-between">
-
-            <p className="text-[rgba(240,237,232,0.2)] text-[0.6rem] tracking-[0.14em] uppercase">
-              © 2024 Ali Abiyar
-            </p>
-
-            <button
-              onClick={() => navigate('home')}
-              className="text-[rgba(240,237,232,0.2)] text-[0.6rem] tracking-[0.14em] uppercase hover:text-[rgba(240,237,232,0.5)] transition-colors"
-            >
-              Back to top ↑
-            </button>
-
-          </footer>
-        )}
 
     </div>
   )
