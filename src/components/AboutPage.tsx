@@ -113,8 +113,8 @@ export function AboutPage() {
 
         {/* Left: portrait */}
         <div
-          className="overflow-hidden bg-[#0f0e0d] max-h-[420px] md:max-h-[680px]"
-          style={{ aspectRatio: '4/5' }}
+          className="overflow-hidden bg-[#0f0e0d] w-full"
+          style={{ aspectRatio: '4 / 5' }}
         >
           <img
             src="/DSC01972.jpg"
@@ -122,7 +122,7 @@ export function AboutPage() {
             className="w-full h-full object-cover"
             style={{
               filter: 'brightness(0.82) saturate(0.9)',
-              objectPosition: 'center top',
+              objectPosition: 'center center',
             }}
           />
         </div>
@@ -163,7 +163,7 @@ export function AboutPage() {
       {/* ── 3. Facts grid ── */}
       <div
         ref={infoRef}
-        className="grid md:grid-cols-3 border-t border-[rgba(240,237,232,0.06)]"
+        className="grid md:grid-cols-2 border-t border-[rgba(240,237,232,0.06)]"
         style={reveal(infoIn, 80)}
       >
 
@@ -179,7 +179,7 @@ export function AboutPage() {
         </div>
 
         {/* Selected services */}
-        <div className="px-8 md:px-16 py-10 md:py-14 border-b md:border-b-0 border-r-0 md:border-r border-[rgba(240,237,232,0.06)]">
+        <div className="px-8 md:px-16 py-10 md:py-14">
           <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-5">
             Selected services
           </p>
@@ -204,35 +204,6 @@ export function AboutPage() {
           </ul>
         </div>
 
-        {/* Selected clients */}
-        <div className="px-8 md:px-16 py-10 md:py-14">
-          <p className="text-[rgba(240,237,232,0.22)] text-[0.6rem] tracking-[0.22em] uppercase mb-5">
-            Selected clients
-          </p>
-
-          <ul className="flex flex-col gap-2">
-            {[
-              'Rosehip Skincare',
-              'Studio Session',
-              'The Hearth',
-              'Morning Shift Café',
-            ].map((c) => (
-              <li
-                key={c}
-                className="text-[rgba(240,237,232,0.55)] text-[0.78rem] font-light"
-                style={{
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                }}
-              >
-                {c}
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-4 text-[rgba(240,237,232,0.18)] text-[0.6rem] tracking-[0.22em] uppercase">
-            + others undisclosed
-          </p>
-        </div>
       </div>
 
       {/* ── 4. Social links footer ── */}
