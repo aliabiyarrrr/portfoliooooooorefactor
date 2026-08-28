@@ -6,9 +6,13 @@ import { PROJECT_TYPES } from '../data/siteData'
 
 const dmSans = { fontFamily: "'DM Sans', system-ui, sans-serif" }
 
+const WEB3FORMS_ACCESS_KEY = '5274a2f5-bbb8-4e48-b8f4-a44fe875dcbd'
+
 export function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', projectType: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -16,14 +20,36 @@ export function ContactPage() {
     return () => clearTimeout(t)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const subject = encodeURIComponent(`Project inquiry from ${form.name}${form.projectType ? ` — ${form.projectType}` : ''}`)
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}${form.projectType ? `\nProject type: ${form.projectType}` : ''}\n\nMessage:\n${form.message}`
-    )
-    window.location.href = `mailto:a.abiyar@gmail.com?subject=${subject}&body=${body}`
-    setSubmitted(true)
+    setSending(true)
+    setError('')
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `Project inquiry from ${form.name}${form.projectType ? ` — ${form.projectType}` : ''}`,
+          name: form.name,
+          email: form.email,
+          project_type: form.projectType,
+          message: form.message,
+        }),
+      })
+      const result = await res.json()
+
+      if (result.success) {
+        setSubmitted(true)
+      } else {
+        setError('Something went wrong. Please try again or email me directly.')
+      }
+    } catch {
+      setError('Something went wrong. Please try again or email me directly.')
+    } finally {
+      setSending(false)
+    }
   }
 
   const fadeIn = (delay = 0) => ({
@@ -97,7 +123,7 @@ export function ContactPage() {
                 <p style={{ ...dmSans, fontSize: '0.56rem', letterSpacing: '0.24em', color: 'rgba(240,237,232,0.52)', textTransform: 'uppercase', marginBottom: '0.55rem' }}>
                   {item.label}
                 </p>
-                <a
+                
                   href={item.href}
                   className="group inline-flex items-center gap-2 transition-colors duration-300"
                   style={{ color: 'rgba(240,237,232,0.9)', ...dmSans, fontSize: '0.95rem', fontWeight: 300 }}
@@ -120,7 +146,7 @@ export function ContactPage() {
             </p>
             <div className="flex flex-col gap-4">
               {socialItems.map((s) => (
-                <a
+                
                   key={s.label}
                   href={s.href}
                   target="_blank"
@@ -164,7 +190,7 @@ export function ContactPage() {
                 Your message is on its way.
               </p>
               <p style={{ ...dmSans, fontSize: '0.85rem', fontWeight: 300, color: 'rgba(240,237,232,0.4)', lineHeight: 1.9 }}>
-                Check your mail client to complete sending — looking forward to speaking with you.
+                Thanks for reaching out — I'll get back to you soon.
               </p>
             </div>
           ) : (
@@ -229,16 +255,24 @@ export function ContactPage() {
                 />
               </div>
 
+              {error && (
+                <p style={{ ...dmSans, fontSize: '0.75rem', color: 'rgba(230,120,110,0.85)', marginBottom: '1.5rem' }}>
+                  {error}
+                </p>
+              )}
+
               {/* Submit */}
               <button
                 type="submit"
+                disabled={sending}
                 className="group flex items-center gap-4 w-fit transition-all duration-300"
+                style={{ opacity: sending ? 0.5 : 1, cursor: sending ? 'default' : 'pointer' }}
               >
                 <span
                   style={{ ...dmSans, fontSize: '0.6rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#f0ede8', transition: 'color 300ms' }}
                   className="group-hover:text-[rgba(240,237,232,0.5)]"
                 >
-                  Send inquiry
+                  {sending ? 'Sending...' : 'Send inquiry'}
                 </span>
                 <span
                   className="block h-px transition-all duration-300 group-hover:w-12"
@@ -259,4 +293,3 @@ export function ContactPage() {
     </section>
   )
 }
-
