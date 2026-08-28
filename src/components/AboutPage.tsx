@@ -92,8 +92,15 @@ export function AboutPage() {
         <div className="px-8 md:px-14 py-12 md:py-16 flex flex-col justify-between">
           <div className="flex flex-col gap-6 max-w-md">
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
-              Ali Abiyar is a photographer and filmmaker based between Tehran and Berlin. His practice spans fashion, commercial campaigns, and long-form personal work — built around a close attention to light, atmosphere, and the quiet that exists at the edges of a frame.
-            </p>
+I’m Ali Abiyar, a photographer and filmmaker based in Tehran.
+
+I started photography in 2009, and since 2018, photography, filmmaking, and content creation have been my full-time work.
+
+Fashion is where I feel most at home, but I enjoy taking on new challenges and working across different kinds of projects. What I like most is the whole process — from the first idea and moodboard to the shoot, editing, and final delivery.
+
+I care about clean, considered work and getting the best out of every project, whatever the subject or field.
+
+Based in Tehran. Available worldwide.            </p>
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
               He approaches each project — whether a studio shoot, a restaurant interior, or a short film — with the same method: study the space, wait for the right light, and make as few frames as necessary.
             </p>
