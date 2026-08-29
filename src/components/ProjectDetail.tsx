@@ -74,7 +74,6 @@ function ImageRow({ value }: { value: any }) {
                   display: 'block',
                   width: '100%',
                   height: 'auto',
-                  filter: 'brightness(0.9)',
                 }}
               />
 
@@ -139,7 +138,6 @@ const ptComponents = {
               className="w-full h-auto"
               style={{
                 display: 'block',
-                filter: 'brightness(0.9)',
               }}
             />
 
@@ -324,7 +322,7 @@ export function ProjectDetail({
                 alt={project.title}
                 className="w-full h-full object-cover"
                 style={{
-                  filter: 'brightness(0.86)',
+                  display: 'block',
                 }}
               />
             </div>
@@ -348,7 +346,7 @@ export function ProjectDetail({
                       loading="lazy"
                       className="w-full h-full object-cover"
                       style={{
-                        filter: 'brightness(0.85)',
+                        display: 'block',
                       }}
                     />
                   </div>
