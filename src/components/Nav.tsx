@@ -16,7 +16,6 @@ export function Nav({
   const [menuOpen, setMenuOpen] = useState(false)
 
   const close = () => setMenuOpen(false)
-
   const go = (p: Page) => {
     navigate(p)
     close()
@@ -49,32 +48,17 @@ export function Nav({
     },
   ]
 
-  const isHome = page === 'home'
-
-  /*
-   * On Home:
-   * difference blend mode automatically switches
-   * between light and dark depending on the image.
-   *
-   * On other pages:
-   * keep the original colors.
-   */
-  const adaptiveStyle = isHome
-    ? {
-        mixBlendMode: 'difference' as const,
-        color: '#ffffff',
-      }
-    : {}
-
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50"
-      style={{ padding: '20px 28px' }}
+      style={{
+        padding: '20px 28px',
+        mixBlendMode: page === 'home' ? 'difference' : 'normal',
+      }}
     >
       <div className="flex items-center justify-between">
 
-        {/* ─── Left: brand ─────────────────────────────────────────────── */}
-
+        {/* Left: brand */}
         <button
           onClick={() => go('home')}
           className="hover:opacity-40 transition-opacity duration-300 uppercase"
@@ -83,139 +67,74 @@ export function Nav({
             fontWeight: 900,
             fontSize: '0.85rem',
             letterSpacing: '0.1em',
-
-            ...adaptiveStyle,
-
-            color: isHome ? '#ffffff' : '#f0ede8',
+            color: '#ffffff',
           }}
         >
           Ali Abiyar
         </button>
 
-        {/* ─── Right: desktop navigation ───────────────────────────────── */}
-
-        <div
-          className="hidden md:flex items-center gap-7"
-          style={adaptiveStyle}
-        >
+        {/* Right: desktop navigation */}
+        <div className="hidden md:flex items-center gap-7">
           {navItems
             .filter((item) => item.label !== 'Contact')
             .map((item) => (
               <button
                 key={item.label}
                 onClick={item.action}
-                className="text-[0.6rem] tracking-[0.16em] uppercase transition-colors duration-200"
+                className="text-[0.6rem] tracking-[0.16em] uppercase transition-opacity duration-200"
                 style={{
-                  fontFamily:
-                    "'DM Sans', system-ui, sans-serif",
-
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontWeight: 400,
-
-                  color: isHome
-                    ? '#ffffff'
-                    : item.active
-                    ? '#f0ede8'
-                    : 'rgba(240,237,232,0.5)',
+                  color: '#ffffff',
+                  opacity: item.active ? 1 : 0.65,
                 }}
                 onMouseEnter={(e) => {
-                  if (!isHome) {
-                    ;(
-                      e.currentTarget as HTMLElement
-                    ).style.color = '#f0ede8'
-                  }
+                  e.currentTarget.style.opacity = '1'
                 }}
                 onMouseLeave={(e) => {
-                  if (!isHome) {
-                    ;(
-                      e.currentTarget as HTMLElement
-                    ).style.color = item.active
-                      ? '#f0ede8'
-                      : 'rgba(240,237,232,0.5)'
-                  }
+                  e.currentTarget.style.opacity = item.active ? '1' : '0.65'
                 }}
               >
                 {item.label}
               </button>
             ))}
 
-          {/* ─── Contact CTA ─────────────────────────────────────────── */}
-
+          {/* Contact CTA */}
           <button
             onClick={() => go('contact')}
             className="text-[0.6rem] tracking-[0.16em] uppercase transition-all duration-200"
             style={{
-              fontFamily:
-                "'DM Sans', system-ui, sans-serif",
-
+              fontFamily: "'DM Sans', system-ui, sans-serif",
               fontWeight: 400,
-
-              color: isHome
-                ? '#ffffff'
-                : page === 'contact'
-                ? '#0c0c0b'
-                : '#f0ede8',
-
-              background: isHome
-                ? 'transparent'
-                : page === 'contact'
-                ? '#f0ede8'
-                : 'rgba(240,237,232,0.12)',
-
-              border: isHome
-                ? '1px solid rgba(255,255,255,0.7)'
-                : '1px solid rgba(240,237,232,0.35)',
-
+              color: '#ffffff',
+              background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.5)',
               padding: '5px 14px',
               borderRadius: '2px',
-
-              ...(isHome
-                ? {
-                    mixBlendMode: 'difference' as const,
-                  }
-                : {}),
+              opacity: page === 'contact' ? 1 : 0.85,
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement
-
-              if (isHome) return
-
-              el.style.background = '#f0ede8'
-              el.style.color = '#0c0c0b'
-              el.style.borderColor = '#f0ede8'
+              el.style.background = 'rgba(255,255,255,0.25)'
+              el.style.opacity = '1'
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement
-
-              if (isHome) return
-
-              el.style.background =
-                page === 'contact'
-                  ? '#f0ede8'
-                  : 'rgba(240,237,232,0.12)'
-
-              el.style.color =
-                page === 'contact'
-                  ? '#0c0c0b'
-                  : '#f0ede8'
-
-              el.style.borderColor =
-                'rgba(240,237,232,0.35)'
+              el.style.background = 'rgba(255,255,255,0.12)'
+              el.style.opacity = page === 'contact' ? '1' : '0.85'
             }}
           >
             Contact
           </button>
         </div>
 
-        {/* ─── Right: hamburger — mobile ─────────────────────────────── */}
-
+        {/* Right: hamburger — mobile */}
         <button
           onClick={() => setMenuOpen((v) => !v)}
           className="md:hidden flex flex-col items-end justify-center gap-[5px]"
           style={{
             width: '28px',
             height: '28px',
-
-            ...adaptiveStyle,
           }}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
@@ -224,15 +143,11 @@ export function Nav({
             style={{
               display: 'block',
               height: '1.5px',
-              background: isHome
-                ? '#ffffff'
-                : '#f0ede8',
+              background: '#ffffff',
               width: '22px',
-
               transform: menuOpen
                 ? 'translateY(6.5px) rotate(45deg)'
                 : 'none',
-
               transition:
                 'transform 300ms cubic-bezier(0.4,0,0.2,1)',
             }}
@@ -242,15 +157,10 @@ export function Nav({
             style={{
               display: 'block',
               height: '1.5px',
-              background: isHome
-                ? '#ffffff'
-                : '#f0ede8',
+              background: '#ffffff',
               width: '22px',
-
               opacity: menuOpen ? 0 : 1,
-
-              transition:
-                'opacity 200ms ease',
+              transition: 'opacity 200ms ease',
             }}
           />
 
@@ -258,16 +168,11 @@ export function Nav({
             style={{
               display: 'block',
               height: '1.5px',
-              background: isHome
-                ? '#ffffff'
-                : '#f0ede8',
-
+              background: '#ffffff',
               width: menuOpen ? '22px' : '16px',
-
               transform: menuOpen
                 ? 'translateY(-6.5px) rotate(-45deg)'
                 : 'none',
-
               transition:
                 'transform 300ms cubic-bezier(0.4,0,0.2,1), width 300ms ease',
             }}
@@ -275,27 +180,15 @@ export function Nav({
         </button>
       </div>
 
-      {/* ─── Mobile dropdown ───────────────────────────────────────────── */}
-
+      {/* Mobile dropdown */}
       <div
         className="md:hidden"
         style={{
           overflow: 'hidden',
-
-          maxHeight: menuOpen
-            ? '320px'
-            : '0px',
-
+          maxHeight: menuOpen ? '320px' : '0px',
           opacity: menuOpen ? 1 : 0,
-
           transition:
             'max-height 350ms cubic-bezier(0.4,0,0.2,1), opacity 300ms ease',
-
-          ...(isHome
-            ? {
-                mixBlendMode: 'difference' as const,
-              }
-            : {}),
         }}
       >
         <div
@@ -309,25 +202,15 @@ export function Nav({
             <button
               key={item.label}
               onClick={item.action}
-              className="text-left transition-colors duration-200"
+              className="text-left transition-opacity duration-200"
               style={{
-                fontFamily:
-                  "'DM Sans', system-ui, sans-serif",
-
+                fontFamily: "'DM Sans', system-ui, sans-serif",
                 fontWeight: 400,
-
                 fontSize: '0.85rem',
-
                 letterSpacing: '0.14em',
-
                 textTransform: 'uppercase',
-
-                color: isHome
-                  ? '#ffffff'
-                  : item.active
-                  ? '#f0ede8'
-                  : 'rgba(240,237,232,0.55)',
-
+                color: '#ffffff',
+                opacity: item.active ? 1 : 0.65,
                 padding: '10px 0',
               }}
             >
