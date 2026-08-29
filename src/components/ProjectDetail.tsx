@@ -34,6 +34,11 @@ function ImageRow({ value }: { value: any }) {
     })
   }
 
+  const totalRatio = ratios.reduce(
+    (sum, ratio) => sum + ratio,
+    0
+  )
+
   return (
     <div className="px-8 md:px-16 py-6 md:py-10">
       <div
@@ -122,8 +127,8 @@ const ptComponents = {
         <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
           <div
             style={{
-              width: `${Math.min(widthPct, 92)}%`,
-              maxWidth: '1200px',
+              width: `${widthPct}%`,
+              maxWidth: '100%',
             }}
           >
             <img
@@ -159,17 +164,25 @@ const ptComponents = {
 
       return (
         <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
-          <div style={{ width: '100%', maxWidth: '100%' }}>
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '1200px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
             <video
               src={value.videoUrl}
               controls
               playsInline
               style={{
                 display: 'block',
-                width: 'auto',
-                maxWidth: '85vw',
-                maxHeight: '70vh',
+                width: '100%',
+                maxWidth: '1200px',
+                maxHeight: '78vh',
                 height: 'auto',
+                objectFit: 'contain',
                 background: '#0f0e0d',
               }}
             />
@@ -394,19 +407,30 @@ export function ProjectDetail({
               key={i}
               className="px-8 md:px-16 py-10 md:py-16 flex justify-center"
             >
-              <video
-                src={src}
-                controls
-                playsInline
+              <div
                 style={{
-                  display: 'block',
-                  width: 'auto',
-                  maxWidth: '85vw',
-                  maxHeight: '70vh',
-                  height: 'auto',
-                  background: '#0f0e0d',
+                  width: '100%',
+                  maxWidth: '1200px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
-              />
+              >
+                <video
+                  src={src}
+                  controls
+                  playsInline
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    maxWidth: '1200px',
+                    maxHeight: '78vh',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    background: '#0f0e0d',
+                  }}
+                />
+              </div>
             </div>
           ))}
         </div>
