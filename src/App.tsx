@@ -10,33 +10,25 @@ import { ContactPage } from './components/ContactPage'
 
 /* ─── URL helpers ─────────────────────────────────────────────────────────── */
 
-/*
- * Convert project title into a clean URL slug.
- *
- * Example:
- * "Summer Campaign 2026" → "summer-campaign-2026"
- * "My Project!" → "my-project"
- */
-function slugify(title: string): string {
-  return title
-    .normalize('NFKC')
-    .trim()
+function categoryToSlug(category: WorkCategory): string {
+  return category
     .toLowerCase()
+    .replace(/&/g, 'and')
     .replace(/\s+/g, '-')
-    .replace(/[^\p{L}\p{N}\-_]+/gu, '')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
 
-/*
- * Find a project using its URL slug.
- */
-function getProjectFromSlug(slug: string): Project | null {
-  const decodedSlug = decodeURIComponent(slug)
+function slugToCategory(slug: string): WorkCategory | null {
+  const categories: WorkCategory[] = [
+    'Fashion',
+    'Commercial',
+    'Portraits',
+    'Cafe & Restaurants',
+    'Videos',
+  ]
 
   return (
-    PROJECTS.find(
-      (project) => slugify(project.title) === decodedSlug
+    categories.find(
+      (category) => categoryToSlug(category) === slug
     ) ?? null
   )
 }
@@ -49,15 +41,26 @@ function getPageFromURL(): {
   const path =
     window.location.pathname.replace(/\/+$/, '') || '/'
 
-  if (path.startsWith('/project/')) {
-    const projectSlug = decodeURIComponent(
-      path.split('/project/')[1] || ''
-    )
+  /* ── Project URL ──
+     /projects/fashion/project-id
+  */
 
-    return {
-      page: 'project',
-      projectId: projectSlug,
-      category: null,
+  if (path.startsWith('/projects/')) {
+    const parts = path.split('/').filter(Boolean)
+
+    if (parts.length >= 3) {
+      const categorySlug = parts[1]
+      const projectId = decodeURIComponent(
+        parts.slice(2).join('/')
+      )
+
+      const category = slugToCategory(categorySlug)
+
+      return {
+        page: 'project',
+        projectId,
+        category,
+      }
     }
   }
 
@@ -109,21 +112,34 @@ function getURL(
   project?: Project | null,
   category?: WorkCategory | null
 ) {
+  /* ── Project ── */
+
   if (page === 'project' && project) {
-    return `/project/${encodeURIComponent(
-      slugify(project.title)
+    const projectCategory =
+      category ?? project.category
+
+    const categorySlug =
+      categoryToSlug(projectCategory)
+
+    return `/projects/${categorySlug}/${encodeURIComponent(
+      project.id
     )}`
   }
 
+  /* ── Work ── */
+
   if (page === 'work') {
     if (category) {
-      return `/projects?category=${encodeURIComponent(category)}`
+      return `/projects?category=${encodeURIComponent(
+        category
+      )}`
     }
 
     return '/projects'
   }
 
   if (page === 'about') return '/about'
+
   if (page === 'contact') return '/contact'
 
   return '/'
@@ -136,11 +152,14 @@ export default function App() {
 
   const initialProject =
     initialURL.projectId
-      ? getProjectFromSlug(initialURL.projectId)
+      ? PROJECTS.find(
+          (p) => p.id === initialURL.projectId
+        ) ?? null
       : null
 
   const [page, setPage] = useState<Page>(
-    initialURL.page === 'project' && !initialProject
+    initialURL.page === 'project' &&
+    !initialProject
       ? 'work'
       : initialURL.page
   )
@@ -163,18 +182,21 @@ export default function App() {
 
       const project =
         currentURL.projectId
-          ? getProjectFromSlug(
-              currentURL.projectId
-            )
+          ? PROJECTS.find(
+              (p) =>
+                p.id === currentURL.projectId
+            ) ?? null
           : null
 
       setPage(
-        currentURL.page === 'project' && !project
+        currentURL.page === 'project' &&
+        !project
           ? 'work'
           : currentURL.page
       )
 
       setActiveCat(currentURL.category)
+
       setActiveProject(project)
 
       window.scrollTo({
@@ -204,6 +226,7 @@ export default function App() {
        * Services is temporarily disabled.
        * The page/component itself is not deleted.
        */
+
       if (p === 'services') {
         return
       }
@@ -214,9 +237,14 @@ export default function App() {
         cat ?? null
       )
 
-      window.history.pushState({}, '', url)
+      window.history.pushState(
+        {},
+        '',
+        url
+      )
 
       setPage(p)
+
       setActiveCat(cat ?? null)
 
       if (p !== 'project') {
@@ -237,7 +265,8 @@ export default function App() {
     (project: Project) => {
       const url = getURL(
         'project',
-        project
+        project,
+        project.category
       )
 
       window.history.pushState(
@@ -247,8 +276,10 @@ export default function App() {
       )
 
       setActiveProject(project)
+
       setPage('project')
-      setActiveCat(null)
+
+      setActiveCat(project.category)
 
       window.scrollTo({
         top: 0,
@@ -268,7 +299,9 @@ export default function App() {
     )
 
     setPage('work')
+
     setActiveProject(null)
+
     setActiveCat(null)
 
     window.scrollTo({
