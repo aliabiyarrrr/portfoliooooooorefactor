@@ -122,8 +122,8 @@ const ptComponents = {
         <div className="px-8 md:px-16 py-2 md:py-4 flex justify-center">
           <div
             style={{
-              width: `${widthPct}%`,
-              maxWidth: '100%',
+              width: `${Math.min(widthPct, 92)}%`,
+              maxWidth: '1200px',
             }}
           >
             <img
@@ -133,10 +133,6 @@ const ptComponents = {
               className="w-full h-auto"
               style={{
                 display: 'block',
-                maxHeight: '78vh',
-                width: '100%',
-                height: 'auto',
-                objectFit: 'contain',
               }}
             />
 
@@ -348,6 +344,7 @@ export function ProjectDetail({
       ) : (
 
         <>
+
           {/* ── Cover image ────────────────────────────────────────────── */}
 
           <Reveal y={0}>
@@ -371,15 +368,20 @@ export function ProjectDetail({
           {/* ── Remaining images ──────────────────────────────────────── */}
 
           <div className="mt-2 flex flex-col gap-2">
+
             {imgs.slice(1).map((src, i) => (
+
               <Reveal key={i} delay={50}>
+
                 <div className="px-8 md:px-16 py-4 md:py-6">
+
                   <div
                     className="overflow-hidden bg-[#0f0e0d]"
                     style={{
                       aspectRatio: '4/3',
                     }}
                   >
+
                     <img
                       src={src}
                       alt={`${project.title} — ${i + 2}`}
@@ -389,11 +391,17 @@ export function ProjectDetail({
                         display: 'block',
                       }}
                     />
+
                   </div>
+
                 </div>
+
               </Reveal>
+
             ))}
+
           </div>
+
         </>
 
       )}
@@ -401,12 +409,16 @@ export function ProjectDetail({
       {/* ── Standalone videos ─────────────────────────────────────────── */}
 
       {project.videos && project.videos.length > 0 && (
+
         <div className="mt-2 flex flex-col gap-2">
+
           {project.videos.map((src, i) => (
+
             <div
               key={i}
               className="px-8 md:px-16 py-4 md:py-6 flex justify-center"
             >
+
               <div
                 style={{
                   width: '100%',
@@ -416,6 +428,7 @@ export function ProjectDetail({
                   alignItems: 'center',
                 }}
               >
+
                 <video
                   src={src}
                   controls
@@ -430,19 +443,26 @@ export function ProjectDetail({
                     background: '#0f0e0d',
                   }}
                 />
+
               </div>
+
             </div>
+
           ))}
+
         </div>
+
       )}
 
       {/* ── Back to projects ───────────────────────────────────────────── */}
 
       <div className="mt-2 border-t border-[rgba(240,237,232,0.06)]">
+
         <button
           onClick={onBack}
           className="w-full px-8 md:px-16 py-20 text-left"
         >
+
           <p className="text-[rgba(240,237,232,0.3)] text-[0.6rem] tracking-[0.22em] uppercase mb-4">
             Back
           </p>
@@ -455,7 +475,9 @@ export function ProjectDetail({
           >
             All Projects →
           </h2>
+
         </button>
+
       </div>
 
     </article>
