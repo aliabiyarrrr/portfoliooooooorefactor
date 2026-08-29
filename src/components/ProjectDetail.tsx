@@ -34,11 +34,6 @@ function ImageRow({ value }: { value: any }) {
     })
   }
 
-  const totalRatio = ratios.reduce(
-    (sum, ratio) => sum + ratio,
-    0
-  )
-
   return (
     <div className="px-8 md:px-16 py-6 md:py-10">
       <div
@@ -127,8 +122,8 @@ const ptComponents = {
         <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
           <div
             style={{
-              width: `${widthPct}%`,
-              maxWidth: '100%',
+              width: `${Math.min(widthPct, 92)}%`,
+              maxWidth: '1200px',
             }}
           >
             <img
@@ -138,11 +133,6 @@ const ptComponents = {
               className="w-full h-auto"
               style={{
                 display: 'block',
-                maxHeight: '80vh',
-                width: 'auto',
-                maxWidth: '100%',
-                objectFit: 'contain',
-                margin: '0 auto',
               }}
             />
 
@@ -169,24 +159,15 @@ const ptComponents = {
 
       return (
         <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '100%',
-            }}
-          >
+          <div style={{ width: '100%', maxWidth: '100%' }}>
             <video
               src={value.videoUrl}
               controls
               playsInline
               style={{
                 display: 'block',
-                width: 'auto',
-                maxWidth: '100%',
-                height: '80vh',
-                maxHeight: '80vh',
-                objectFit: 'contain',
-                margin: '0 auto',
+                width: '100%',
+                height: 'auto',
                 background: '#0f0e0d',
               }}
             />
@@ -407,18 +388,19 @@ export function ProjectDetail({
       {project.videos && project.videos.length > 0 && (
         <div className="mt-2 flex flex-col gap-2">
           {project.videos.map((src, i) => (
-            <div key={i} className="px-8 md:px-16 py-10 md:py-16 flex justify-center">
+            <div
+              key={i}
+              className="px-8 md:px-16 py-10 md:py-16 flex justify-center"
+            >
               <video
                 src={src}
                 controls
                 playsInline
                 style={{
                   display: 'block',
-                  width: 'auto',
-                  maxWidth: '100%',
-                  height: '80vh',
-                  maxHeight: '80vh',
-                  objectFit: 'contain',
+                  width: '100%',
+                  maxWidth: '900px',
+                  height: 'auto',
                   background: '#0f0e0d',
                 }}
               />
