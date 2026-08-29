@@ -10,18 +10,53 @@ import { ContactPage } from './components/ContactPage'
 
 /* ─── URL helpers ─────────────────────────────────────────────────────────── */
 
+/*
+ * Convert project title into a clean URL slug.
+ *
+ * Example:
+ * "Summer Campaign 2026" → "summer-campaign-2026"
+ * "My Project!" → "my-project"
+ */
+function slugify(title: string): string {
+  return title
+    .normalize('NFKC')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{L}\p{N}\-_]+/gu, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/*
+ * Find a project using its URL slug.
+ */
+function getProjectFromSlug(slug: string): Project | null {
+  const decodedSlug = decodeURIComponent(slug)
+
+  return (
+    PROJECTS.find(
+      (project) => slugify(project.title) === decodedSlug
+    ) ?? null
+  )
+}
+
 function getPageFromURL(): {
   page: Page
   projectId: string | null
   category: WorkCategory | null
 } {
-  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+  const path =
+    window.location.pathname.replace(/\/+$/, '') || '/'
 
   if (path.startsWith('/project/')) {
-    const projectId = decodeURIComponent(path.split('/project/')[1] || '')
+    const projectSlug = decodeURIComponent(
+      path.split('/project/')[1] || ''
+    )
+
     return {
       page: 'project',
-      projectId,
+      projectId: projectSlug,
       category: null,
     }
   }
@@ -75,7 +110,9 @@ function getURL(
   category?: WorkCategory | null
 ) {
   if (page === 'project' && project) {
-    return `/project/${encodeURIComponent(project.id)}`
+    return `/project/${encodeURIComponent(
+      slugify(project.title)
+    )}`
   }
 
   if (page === 'work') {
@@ -99,7 +136,7 @@ export default function App() {
 
   const initialProject =
     initialURL.projectId
-      ? PROJECTS.find((p) => p.id === initialURL.projectId) ?? null
+      ? getProjectFromSlug(initialURL.projectId)
       : null
 
   const [page, setPage] = useState<Page>(
@@ -108,13 +145,15 @@ export default function App() {
       : initialURL.page
   )
 
-  const [activeCat, setActiveCat] = useState<WorkCategory | null>(
-    initialURL.category
-  )
+  const [activeCat, setActiveCat] =
+    useState<WorkCategory | null>(
+      initialURL.category
+    )
 
-  const [activeProject, setActiveProject] = useState<Project | null>(
-    initialProject
-  )
+  const [activeProject, setActiveProject] =
+    useState<Project | null>(
+      initialProject
+    )
 
   /* ── Browser back / forward ── */
 
@@ -122,9 +161,12 @@ export default function App() {
     const handlePopState = () => {
       const currentURL = getPageFromURL()
 
-      const project = currentURL.projectId
-        ? PROJECTS.find((p) => p.id === currentURL.projectId) ?? null
-        : null
+      const project =
+        currentURL.projectId
+          ? getProjectFromSlug(
+              currentURL.projectId
+            )
+          : null
 
       setPage(
         currentURL.page === 'project' && !project
@@ -141,10 +183,16 @@ export default function App() {
       })
     }
 
-    window.addEventListener('popstate', handlePopState)
+    window.addEventListener(
+      'popstate',
+      handlePopState
+    )
 
     return () => {
-      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener(
+        'popstate',
+        handlePopState
+      )
     }
   }, [])
 
@@ -185,25 +233,39 @@ export default function App() {
 
   /* ── Open project ── */
 
-  const openProject = useCallback((project: Project) => {
-    const url = getURL('project', project)
+  const openProject = useCallback(
+    (project: Project) => {
+      const url = getURL(
+        'project',
+        project
+      )
 
-    window.history.pushState({}, '', url)
+      window.history.pushState(
+        {},
+        '',
+        url
+      )
 
-    setActiveProject(project)
-    setPage('project')
-    setActiveCat(null)
+      setActiveProject(project)
+      setPage('project')
+      setActiveCat(null)
 
-    window.scrollTo({
-      top: 0,
-      behavior: 'instant',
-    })
-  }, [])
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant',
+      })
+    },
+    []
+  )
 
   /* ── Back to work ── */
 
   const goToWork = useCallback(() => {
-    window.history.pushState({}, '', '/projects')
+    window.history.pushState(
+      {},
+      '',
+      '/projects'
+    )
 
     setPage('work')
     setActiveProject(null)
@@ -227,7 +289,9 @@ export default function App() {
       <main>
 
         {page === 'home' && (
-          <HomeSection navigate={navigate} />
+          <HomeSection
+            navigate={navigate}
+          />
         )}
 
         {page === 'work' && (
@@ -237,13 +301,14 @@ export default function App() {
           />
         )}
 
-        {page === 'project' && activeProject && (
-          <ProjectDetail
-            project={activeProject}
-            onBack={goToWork}
-            onOpenProject={openProject}
-          />
-        )}
+        {page === 'project' &&
+          activeProject && (
+            <ProjectDetail
+              project={activeProject}
+              onBack={goToWork}
+              onOpenProject={openProject}
+            />
+          )}
 
         {page === 'about' && (
           <AboutPage />
