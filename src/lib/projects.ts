@@ -11,10 +11,10 @@ const client = createClient({
 
 const builder = imageUrlBuilder(client)
 
-function imageUrl(source: any): string {
+export function urlFor(source: any, width = 1400): string {
   if (!source) return ''
   try {
-    return builder.image(source).width(1200).url()
+    return builder.image(source).width(width).url()
   } catch {
     return ''
   }
@@ -46,7 +46,8 @@ interface SanityProject {
   coverImage?: any
   description?: string
   year?: number
-  images?: any[]
+  gallery?: any[]
+  content?: any[]
   _createdAt?: string
 }
 
@@ -61,11 +62,12 @@ export async function getProjects(): Promise<Project[]> {
       item.year ||
       (item._createdAt ? new Date(item._createdAt).getFullYear() : new Date().getFullYear()),
     category: normalizeCategory(item.category),
-    cover: imageUrl(item.coverImage),
+    cover: urlFor(item.coverImage),
     description: item.description || '',
     images:
-      item.images && item.images.length
-        ? item.images.map(imageUrl)
-        : [imageUrl(item.coverImage)],
+      item.gallery && item.gallery.length
+        ? item.gallery.map((img) => urlFor(img))
+        : [urlFor(item.coverImage)],
+    content: item.content || [],
   }))
 }
