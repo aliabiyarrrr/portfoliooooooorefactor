@@ -42,6 +42,7 @@ export interface Project {
   cover: string
   description: string
   images: string[]
+  content?: any[]
 }
 
 export const PROJECTS: Project[] = [
