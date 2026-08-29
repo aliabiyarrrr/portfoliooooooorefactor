@@ -193,8 +193,8 @@ function EditorialEntry({
         className="absolute inset-0 flex flex-col items-center justify-center text-center"
         style={{
           zIndex: 3,
-          paddingLeft: '40px',
-          paddingRight: '40px',
+          paddingLeft: '28px',
+          paddingRight: '28px',
         }}
       >
         {showCategory && (
@@ -212,7 +212,7 @@ function EditorialEntry({
         <h2
           className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase"
           style={{
-            fontSize: 'clamp(1.35rem, 2.6vw, 2.25rem)',
+            fontSize: 'clamp(1.2rem, 2.4vw, 2rem)',
             lineHeight: 1.08,
             letterSpacing: '0.06em',
             maxWidth: '100%',
