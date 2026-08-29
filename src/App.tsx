@@ -10,28 +10,55 @@ import { ContactPage } from './components/ContactPage'
 
 /* ─── URL helpers ─────────────────────────────────────────────────────────── */
 
-function categoryToSlug(category: WorkCategory): string {
-  return category
+/*
+ * Convert project title to a clean URL slug.
+ *
+ * Example:
+ * "Red Season"      → "red-season"
+ * "Noir Study"      → "noir-study"
+ * "My New Project!" → "my-new-project"
+ */
+function slugify(text: string): string {
+  return text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/&/g, 'and')
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
 }
 
-function slugToCategory(slug: string): WorkCategory | null {
-  const categories: WorkCategory[] = [
-    'Fashion',
-    'Commercial',
-    'Portraits',
-    'Cafe & Restaurants',
-    'Videos',
-  ]
+/*
+ * Convert category name to URL slug.
+ *
+ * Fashion              → fashion
+ * Commercial           → commercial
+ * Portraits            → portraits
+ * Cafe & Restaurants   → cafe-restaurants
+ * Videos               → videos
+ */
+function categorySlug(category: WorkCategory): string {
+  return slugify(category)
+}
 
-  return (
-    categories.find(
-      (category) => categoryToSlug(category) === slug
-    ) ?? null
+/*
+ * Find the original WorkCategory from its URL slug.
+ */
+function categoryFromSlug(slug: string): WorkCategory | null {
+  const category = WORK_CATEGORIES.find(
+    (cat) => categorySlug(cat) === slug
   )
+
+  return category ?? null
 }
+
+/*
+ * We import the categories separately here so the URL parser
+ * can validate category slugs.
+ */
+import { WORK_CATEGORIES } from './data/siteData'
 
 function getPageFromURL(): {
   page: Page
@@ -41,28 +68,77 @@ function getPageFromURL(): {
   const path =
     window.location.pathname.replace(/\/+$/, '') || '/'
 
-  /* ── Project URL ──
-     /projects/fashion/project-id
-  */
+  /* ── Project URL ─────────────────────────────────────────────────────── */
 
+  /*
+   * Expected:
+   * /projects/fashion/red-season
+   * /projects/commercial/rosehip-campaign
+   * /projects/cafe-restaurants/the-hearth
+   */
   if (path.startsWith('/projects/')) {
-    const parts = path.split('/').filter(Boolean)
+    const parts = path
+      .split('/')
+      .filter(Boolean)
 
+    /*
+     * parts:
+     * ["projects", "fashion", "red-season"]
+     */
     if (parts.length >= 3) {
-      const categorySlug = parts[1]
-      const projectId = decodeURIComponent(
+      const categorySlugValue = decodeURIComponent(parts[1])
+      const projectSlug = decodeURIComponent(
         parts.slice(2).join('/')
       )
 
-      const category = slugToCategory(categorySlug)
+      const category =
+        categoryFromSlug(categorySlugValue)
 
-      return {
-        page: 'project',
-        projectId,
-        category,
+      if (category) {
+        const project = PROJECTS.find(
+          (p) =>
+            p.category === category &&
+            slugify(p.title) === projectSlug
+        )
+
+        if (project) {
+          return {
+            page: 'project',
+            projectId: project.id,
+            category,
+          }
+        }
       }
     }
   }
+
+  /* ── Legacy project URL support ─────────────────────────────────────── */
+
+  /*
+   * This keeps old URLs such as:
+   * /project/red-season
+   *
+   * working if someone has an old link.
+   */
+  if (path.startsWith('/project/')) {
+    const projectId = decodeURIComponent(
+      path.split('/project/')[1] || ''
+    )
+
+    const project = PROJECTS.find(
+      (p) =>
+        p.id === projectId ||
+        slugify(p.title) === projectId
+    )
+
+    return {
+      page: project ? 'project' : 'work',
+      projectId: project?.id ?? null,
+      category: project?.category ?? null,
+    }
+  }
+
+  /* ── Contact ─────────────────────────────────────────────────────────── */
 
   if (path === '/contact') {
     return {
@@ -72,6 +148,8 @@ function getPageFromURL(): {
     }
   }
 
+  /* ── About ───────────────────────────────────────────────────────────── */
+
   if (path === '/about') {
     return {
       page: 'about',
@@ -80,13 +158,32 @@ function getPageFromURL(): {
     }
   }
 
+  /* ── Work / Projects ────────────────────────────────────────────────── */
+
   if (path === '/work' || path === '/projects') {
+    const params = new URLSearchParams(
+      window.location.search
+    )
+
+    const categoryParam = params.get('category')
+
+    const category = categoryParam
+      ? categoryFromSlug(categoryParam) ??
+        (WORK_CATEGORIES.includes(
+          categoryParam as WorkCategory
+        )
+          ? (categoryParam as WorkCategory)
+          : null)
+      : null
+
     return {
       page: 'work',
       projectId: null,
-      category: null,
+      category,
     }
   }
+
+  /* ── Services ────────────────────────────────────────────────────────── */
 
   /*
    * Services is intentionally kept in the codebase
@@ -100,6 +197,8 @@ function getPageFromURL(): {
     }
   }
 
+  /* ── Home ────────────────────────────────────────────────────────────── */
+
   return {
     page: 'home',
     projectId: null,
@@ -107,40 +206,48 @@ function getPageFromURL(): {
   }
 }
 
+/* ─── URL generator ──────────────────────────────────────────────────────── */
+
 function getURL(
   page: Page,
   project?: Project | null,
   category?: WorkCategory | null
 ) {
-  /* ── Project ── */
+  /* ── Project ─────────────────────────────────────────────────────────── */
 
   if (page === 'project' && project) {
-    const projectCategory =
-      category ?? project.category
+    const categoryPath = categorySlug(
+      project.category
+    )
 
-    const categorySlug =
-      categoryToSlug(projectCategory)
+    const projectPath = slugify(
+      project.title
+    )
 
-    return `/projects/${categorySlug}/${encodeURIComponent(
-      project.id
-    )}`
+    return `/projects/${categoryPath}/${projectPath}`
   }
 
-  /* ── Work ── */
+  /* ── Work ────────────────────────────────────────────────────────────── */
 
   if (page === 'work') {
     if (category) {
       return `/projects?category=${encodeURIComponent(
-        category
+        categorySlug(category)
       )}`
     }
 
     return '/projects'
   }
 
-  if (page === 'about') return '/about'
+  /* ── Other pages ─────────────────────────────────────────────────────── */
 
-  if (page === 'contact') return '/contact'
+  if (page === 'about') {
+    return '/about'
+  }
+
+  if (page === 'contact') {
+    return '/contact'
+  }
 
   return '/'
 }
@@ -174,7 +281,7 @@ export default function App() {
       initialProject
     )
 
-  /* ── Browser back / forward ── */
+  /* ── Browser back / forward ─────────────────────────────────────────── */
 
   useEffect(() => {
     const handlePopState = () => {
@@ -195,7 +302,9 @@ export default function App() {
           : currentURL.page
       )
 
-      setActiveCat(currentURL.category)
+      setActiveCat(
+        currentURL.category
+      )
 
       setActiveProject(project)
 
@@ -218,15 +327,17 @@ export default function App() {
     }
   }, [])
 
-  /* ── Navigation ── */
+  /* ── Navigation ─────────────────────────────────────────────────────── */
 
   const navigate = useCallback(
-    (p: Page, cat?: WorkCategory) => {
+    (
+      p: Page,
+      cat?: WorkCategory
+    ) => {
       /*
        * Services is temporarily disabled.
        * The page/component itself is not deleted.
        */
-
       if (p === 'services') {
         return
       }
@@ -245,7 +356,9 @@ export default function App() {
 
       setPage(p)
 
-      setActiveCat(cat ?? null)
+      setActiveCat(
+        cat ?? null
+      )
 
       if (p !== 'project') {
         setActiveProject(null)
@@ -259,14 +372,13 @@ export default function App() {
     []
   )
 
-  /* ── Open project ── */
+  /* ── Open project ───────────────────────────────────────────────────── */
 
   const openProject = useCallback(
     (project: Project) => {
       const url = getURL(
         'project',
-        project,
-        project.category
+        project
       )
 
       window.history.pushState(
@@ -279,7 +391,7 @@ export default function App() {
 
       setPage('project')
 
-      setActiveCat(project.category)
+      setActiveCat(null)
 
       window.scrollTo({
         top: 0,
@@ -289,7 +401,7 @@ export default function App() {
     []
   )
 
-  /* ── Back to work ── */
+  /* ── Back to work ───────────────────────────────────────────────────── */
 
   const goToWork = useCallback(() => {
     window.history.pushState(
@@ -309,6 +421,8 @@ export default function App() {
       behavior: 'instant',
     })
   }, [])
+
+  /* ── Render ──────────────────────────────────────────────────────────── */
 
   return (
     <div className="min-h-screen bg-[#0c0c0b]">
