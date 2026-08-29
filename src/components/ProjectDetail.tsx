@@ -180,7 +180,7 @@ const ptComponents = {
                 display: 'block',
                 width: '100%',
                 maxWidth: '1200px',
-                maxHeight: '78vh',
+                maxHeight: '86vh',
                 height: 'auto',
                 objectFit: 'contain',
                 background: '#0f0e0d',
