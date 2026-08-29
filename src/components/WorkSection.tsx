@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 import type { Project, WorkCategory, FilterCategory } from '../data/siteData'
 import { WORK_CATEGORIES } from '../data/siteData'
@@ -50,8 +50,6 @@ export function WorkSection({
   return (
     <section className="min-h-screen bg-[#0c0c0b]">
 
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-
       <div
         className="px-8 md:px-16 pt-28 md:pt-32 pb-10 md:pb-12"
         style={{
@@ -62,7 +60,6 @@ export function WorkSection({
         }}
       >
         <div className="flex items-end justify-between border-b border-[rgba(240,237,232,0.07)] pb-8">
-
           <h1
             className="font-[Cormorant_Garamond] font-bold text-[#f0ede8]"
             style={{
@@ -81,13 +78,9 @@ export function WorkSection({
               {filtered.length === 1 ? 'project' : 'projects'}
             </p>
           )}
-
         </div>
 
-        {/* ── Categories ───────────────────────────────────────────────── */}
-
         <div className="flex items-center gap-0 overflow-x-auto no-scrollbar mt-6">
-
           {allTabs.map((cat, i) => {
             const isActive = activeCategory === cat
 
@@ -111,43 +104,26 @@ export function WorkSection({
               </button>
             )
           })}
-
         </div>
       </div>
 
-      {/* ── Projects ───────────────────────────────────────────────────── */}
-
       <div
-        className="px-4 md:px-16 pb-32"
+        className="pb-32"
         style={{
           opacity: visible ? 1 : 0,
           transition: 'opacity 700ms cubic-bezier(0.4,0,0.2,1) 80ms',
         }}
       >
-
         {loading ? (
-
-          <div className="px-4 md:px-0 py-20 text-[rgba(240,237,232,0.3)] text-xs tracking-[0.2em] uppercase">
+          <div className="px-8 md:px-16 py-20 text-[rgba(240,237,232,0.3)] text-xs tracking-[0.2em] uppercase">
             Loading projects...
           </div>
-
         ) : filtered.length === 0 ? (
-
-          <div className="px-4 md:px-0 py-20 text-[rgba(240,237,232,0.3)] text-xs tracking-[0.2em] uppercase">
+          <div className="px-8 md:px-16 py-20 text-[rgba(240,237,232,0.3)] text-xs tracking-[0.2em] uppercase">
             No projects found.
           </div>
-
         ) : (
-
-          <div
-            className="
-              grid
-              grid-cols-2
-              md:grid-cols-3
-              gap-[6px]
-              md:gap-[8px]
-            "
-          >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {filtered.map((project, i) => (
               <EditorialEntry
                 key={project.id}
@@ -158,17 +134,11 @@ export function WorkSection({
               />
             ))}
           </div>
-
         )}
-
       </div>
-
     </section>
   )
 }
-
-
-/* ─── Project Tile ───────────────────────────────────────────────────────── */
 
 function EditorialEntry({
   project,
@@ -183,63 +153,27 @@ function EditorialEntry({
 }) {
   const [hovered, setHovered] = useState(false)
 
-  const titleRef = useRef<HTMLHeadingElement>(null)
-
   const categoryLabel =
     project.category === 'Cafe & Restaurants'
       ? 'Café & Restaurant'
       : project.category
 
-  useEffect(() => {
-    const title = titleRef.current
-
-    if (!title) return
-
-    const adjustFontSize = () => {
-      const parent = title.parentElement
-
-      if (!parent) return
-
-      const availableWidth = parent.clientWidth - 32
-
-      let fontSize = window.innerWidth < 768 ? 24 : 40
-
-      title.style.fontSize = `${fontSize}px`
-
-      while (
-        title.scrollWidth > availableWidth &&
-        fontSize > 11
-      ) {
-        fontSize -= 1
-        title.style.fontSize = `${fontSize}px`
-      }
-    }
-
-    adjustFontSize()
-
-    window.addEventListener('resize', adjustFontSize)
-
-    return () => {
-      window.removeEventListener('resize', adjustFontSize)
-    }
-  }, [project.title])
-
   return (
     <article
       className="relative cursor-pointer overflow-hidden"
       style={{
-        aspectRatio: '1 / 1',
         borderTop: '1px solid rgba(240,237,232,0.06)',
       }}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-
-      {/* ── Image ─────────────────────────────────────────────────────── */}
-
-      <div className="absolute inset-0 overflow-hidden bg-[#0f0e0d]">
-
+      <div
+        className="w-full overflow-hidden bg-[#0f0e0d]"
+        style={{
+          aspectRatio: '1 / 1',
+        }}
+      >
         <img
           src={project.cover}
           alt={project.title}
@@ -253,21 +187,19 @@ function EditorialEntry({
               'transform 500ms cubic-bezier(0.4,0,0.2,1), opacity 500ms cubic-bezier(0.4,0,0.2,1)',
           }}
         />
-
       </div>
 
-      {/* ── Overlay ───────────────────────────────────────────────────── */}
-
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-6"
+        className="absolute inset-0 flex flex-col items-center justify-center text-center"
         style={{
           zIndex: 3,
+          paddingLeft: '40px',
+          paddingRight: '40px',
         }}
       >
-
         {showCategory && (
           <p
-            className="text-[rgba(240,237,232,0.55)] text-[0.48rem] md:text-[0.58rem] tracking-[0.2em] md:tracking-[0.28em] uppercase mb-2 md:mb-3 whitespace-nowrap"
+            className="text-[rgba(240,237,232,0.55)] text-[0.58rem] tracking-[0.28em] uppercase mb-3"
             style={{
               fontFamily: "'DM Sans', system-ui, sans-serif",
               fontWeight: 300,
@@ -278,12 +210,13 @@ function EditorialEntry({
         )}
 
         <h2
-          ref={titleRef}
-          className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase whitespace-nowrap"
+          className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase"
           style={{
-            lineHeight: 1.05,
-            letterSpacing: '0.05em',
+            fontSize: 'clamp(1.35rem, 2.6vw, 2.25rem)',
+            lineHeight: 1.08,
+            letterSpacing: '0.06em',
             maxWidth: '100%',
+            overflowWrap: 'break-word',
             transform: hovered ? 'translateY(-2px)' : 'none',
             transition:
               'transform 500ms cubic-bezier(0.4,0,0.2,1)',
@@ -293,7 +226,7 @@ function EditorialEntry({
         </h2>
 
         <p
-          className="text-[rgba(240,237,232,0.4)] text-[0.48rem] md:text-[0.58rem] tracking-[0.18em] md:tracking-[0.22em] uppercase mt-2 md:mt-3 whitespace-nowrap"
+          className="text-[rgba(240,237,232,0.4)] text-[0.58rem] tracking-[0.22em] uppercase mt-3"
           style={{
             fontFamily: "'DM Sans', system-ui, sans-serif",
             fontWeight: 300,
@@ -301,9 +234,7 @@ function EditorialEntry({
         >
           {project.year}
         </p>
-
       </div>
-
     </article>
   )
 }
