@@ -48,11 +48,22 @@ interface SanityProject {
   year?: number
   gallery?: any[]
   content?: any[]
+  videos?: { asset?: { url?: string } }[]
   _createdAt?: string
 }
 
 export async function getProjects(): Promise<Project[]> {
-  const query = `*[_type == "project"] | order(_createdAt desc)`
+  const query = `*[_type == "project"] | order(_createdAt desc){
+    ...,
+    videos[]{
+      asset->{url}
+    },
+    content[]{
+      ...,
+      _type == "layoutVideo" => { "videoUrl": asset->url },
+    }
+  }`
+
   const data: SanityProject[] = await client.fetch(query)
 
   return data.map((item) => ({
@@ -69,5 +80,8 @@ export async function getProjects(): Promise<Project[]> {
         ? item.gallery.map((img) => urlFor(img))
         : [urlFor(item.coverImage)],
     content: item.content || [],
+    videos: (item.videos || [])
+      .map((v) => v.asset?.url)
+      .filter((url): url is string => Boolean(url)),
   }))
 }
