@@ -5,6 +5,92 @@ import type { Project } from '../data/siteData'
 import { urlFor } from '../lib/projects'
 import { Reveal } from './Reveal'
 
+/* ─── Image Row ─────────────────────────────────────────────────────────── */
+
+function ImageRow({ value }: { value: any }) {
+  const images = value?.images || []
+
+  const [ratios, setRatios] = useState<number[]>(
+    images.map(() => 1)
+  )
+
+  useEffect(() => {
+    setRatios(images.map(() => 1))
+  }, [images.length])
+
+  if (images.length === 0) {
+    return null
+  }
+
+  const updateRatio = (index: number, img: HTMLImageElement) => {
+    if (!img.naturalWidth || !img.naturalHeight) return
+
+    const ratio = img.naturalWidth / img.naturalHeight
+
+    setRatios((current) => {
+      const next = [...current]
+      next[index] = ratio
+      return next
+    })
+  }
+
+  const totalRatio = ratios.reduce(
+    (sum, ratio) => sum + ratio,
+    0
+  )
+
+  return (
+    <div className="px-8 md:px-16 py-6 md:py-10">
+      <div
+        className="flex w-full items-start"
+        style={{
+          gap: '8px',
+        }}
+      >
+        {images.map((img: any, i: number) => {
+          const ratio = ratios[i] || 1
+
+          return (
+            <figure
+              key={i}
+              style={{
+                margin: 0,
+                minWidth: 0,
+                flex: `${ratio} 1 0`,
+              }}
+            >
+              <img
+                src={urlFor(img, 1800)}
+                alt={img.caption || ''}
+                loading="lazy"
+                onLoad={(e) =>
+                  updateRatio(
+                    i,
+                    e.currentTarget
+                  )
+                }
+                className="w-full h-auto"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: 'auto',
+                  filter: 'brightness(0.9)',
+                }}
+              />
+
+              {img.caption && (
+                <figcaption className="text-[rgba(240,237,232,0.35)] text-[0.6rem] tracking-[0.14em] uppercase mt-2 text-center">
+                  {img.caption}
+                </figcaption>
+              )}
+            </figure>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Portable Text renderers ────────────────────────────────────────────── */
 
 const ptComponents = {
@@ -47,7 +133,7 @@ const ptComponents = {
             }}
           >
             <img
-              src={urlFor(value, 1600)}
+              src={urlFor(value, 1800)}
               alt={value.caption || ''}
               loading="lazy"
               className="w-full h-auto"
@@ -69,58 +155,13 @@ const ptComponents = {
 
     /* ── Image row ────────────────────────────────────────────────────── */
 
-    imageRow: ({ value }: any) => {
-      const images = value?.images || []
-
-      if (images.length === 0) {
-        return null
-      }
-
-      return (
-        <div className="px-8 md:px-16 py-6 md:py-10">
-          <div
-            className="grid w-full"
-            style={{
-              gridTemplateColumns: `repeat(${images.length}, minmax(0, 1fr))`,
-              gap: '8px',
-            }}
-          >
-            {images.map((img: any, i: number) => (
-              <figure
-                key={i}
-                style={{
-                  margin: 0,
-                  minWidth: 0,
-                }}
-              >
-                <img
-                  src={urlFor(img, 1600)}
-                  alt={img.caption || ''}
-                  loading="lazy"
-                  className="w-full h-auto"
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    height: 'auto',
-                    filter: 'brightness(0.9)',
-                  }}
-                />
-
-                {img.caption && (
-                  <figcaption className="text-[rgba(240,237,232,0.35)] text-[0.6rem] tracking-[0.14em] uppercase mt-2 text-center">
-                    {img.caption}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
-          </div>
-        </div>
-      )
-    },
+    imageRow: ({ value }: any) => (
+      <ImageRow value={value} />
+    ),
   },
 }
 
-/* ─── ProjectDetail ───────────────────────────────────────────────────────── */
+/* ─── ProjectDetail ─────────────────────────────────────────────────────── */
 
 export function ProjectDetail({
   project,
