@@ -392,18 +392,19 @@ export function ProjectDetail({
               key={i}
               className="px-8 md:px-16 py-10 md:py-16 flex justify-center"
             >
-              <video
-                src={src}
-                controls
-                playsInline
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  maxWidth: '900px',
-                  height: 'auto',
-                  background: '#0f0e0d',
-                }}
-              />
+            <video
+  src={src}
+  controls
+  playsInline
+  style={{
+    display: 'block',
+    width: 'auto',
+    maxWidth: '85vw',
+    maxHeight: '70vh',
+    height: 'auto',
+    background: '#0f0e0d',
+  }}
+/>
             </div>
           ))}
         </div>
