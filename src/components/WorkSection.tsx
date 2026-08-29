@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import type { Project, WorkCategory, FilterCategory } from '../data/siteData'
 import { WORK_CATEGORIES } from '../data/siteData'
@@ -183,10 +183,46 @@ function EditorialEntry({
 }) {
   const [hovered, setHovered] = useState(false)
 
+  const titleRef = useRef<HTMLHeadingElement>(null)
+
   const categoryLabel =
     project.category === 'Cafe & Restaurants'
       ? 'Café & Restaurant'
       : project.category
+
+  useEffect(() => {
+    const title = titleRef.current
+
+    if (!title) return
+
+    const adjustFontSize = () => {
+      const parent = title.parentElement
+
+      if (!parent) return
+
+      const availableWidth = parent.clientWidth - 32
+
+      let fontSize = window.innerWidth < 768 ? 24 : 40
+
+      title.style.fontSize = `${fontSize}px`
+
+      while (
+        title.scrollWidth > availableWidth &&
+        fontSize > 11
+      ) {
+        fontSize -= 1
+        title.style.fontSize = `${fontSize}px`
+      }
+    }
+
+    adjustFontSize()
+
+    window.addEventListener('resize', adjustFontSize)
+
+    return () => {
+      window.removeEventListener('resize', adjustFontSize)
+    }
+  }, [project.title])
 
   return (
     <article
@@ -231,7 +267,7 @@ function EditorialEntry({
 
         {showCategory && (
           <p
-            className="text-[rgba(240,237,232,0.55)] text-[0.48rem] md:text-[0.58rem] tracking-[0.2em] md:tracking-[0.28em] uppercase mb-2 md:mb-3"
+            className="text-[rgba(240,237,232,0.55)] text-[0.48rem] md:text-[0.58rem] tracking-[0.2em] md:tracking-[0.28em] uppercase mb-2 md:mb-3 whitespace-nowrap"
             style={{
               fontFamily: "'DM Sans', system-ui, sans-serif",
               fontWeight: 300,
@@ -242,11 +278,12 @@ function EditorialEntry({
         )}
 
         <h2
+          ref={titleRef}
           className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase whitespace-nowrap"
           style={{
-            fontSize: 'clamp(0.9rem, 2.4vw, 2.2rem)',
             lineHeight: 1.05,
             letterSpacing: '0.05em',
+            maxWidth: '100%',
             transform: hovered ? 'translateY(-2px)' : 'none',
             transition:
               'transform 500ms cubic-bezier(0.4,0,0.2,1)',
@@ -256,7 +293,7 @@ function EditorialEntry({
         </h2>
 
         <p
-          className="text-[rgba(240,237,232,0.4)] text-[0.48rem] md:text-[0.58rem] tracking-[0.18em] md:tracking-[0.22em] uppercase mt-2 md:mt-3"
+          className="text-[rgba(240,237,232,0.4)] text-[0.48rem] md:text-[0.58rem] tracking-[0.18em] md:tracking-[0.22em] uppercase mt-2 md:mt-3 whitespace-nowrap"
           style={{
             fontFamily: "'DM Sans', system-ui, sans-serif",
             fontWeight: 300,
