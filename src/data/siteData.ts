@@ -55,6 +55,7 @@ export interface Project {
   description: string
   images: string[]
   content?: any[]
+  videos?: string[]
 }
 
 export const PROJECTS: Project[] = [
@@ -240,42 +241,4 @@ export const SERVICES = [
   },
   {
     num: '02',
-    title: 'Commercial Photography',
-    desc: 'Campaign and product imagery for brands that take visual identity seriously. Precise, considered, and made to last longer than a single season.',
-    image:
-      'https://images.unsplash.com/photo-1779228900994-5b055597a0ec?w=900&h=600&fit=crop&auto=format',
-  },
-  {
-    num: '03',
-    title: 'Food & Hospitality',
-    desc: 'Interior, atmosphere, and cuisine documentation for restaurants, cafés, and hospitality spaces. Honest light, real texture, no artifice.',
-    image:
-      'https://images.unsplash.com/photo-1709548145082-04d0cde481d4?w=900&h=600&fit=crop&auto=format',
-  },
-  {
-    num: '04',
-    title: 'Creative Direction',
-    desc: 'Concept development and visual strategy for campaigns, shoots, and brand identities. Available as a collaborator or lead creative on selected projects.',
-    image:
-      'https://images.unsplash.com/photo-1731589802956-b4693dae884b?w=900&h=600&fit=crop&auto=format',
-  },
-  {
-    num: '05',
-    title: 'Content Production',
-    desc: 'Short-form film, behind-the-scenes documentation, and motion content. Single-channel and multi-format delivery for digital and print.',
-    image:
-      'https://images.unsplash.com/photo-1576280314550-773c50583407?w=900&h=600&fit=crop&auto=format',
-  },
-]
-
-/* ─── contact form options ────────────────────────────────────────────────── */
-
-export const PROJECT_TYPES = [
-  'Fashion Photography',
-  'Commercial Photography',
-  'Food & Hospitality',
-  'Personal Project',
-  'Creative Direction',
-  'Content Production',
-  'Other',
-]
+    title: 'Commercial
