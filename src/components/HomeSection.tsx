@@ -15,10 +15,7 @@ export function HomeSection({
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
 
-  const [isLightBackground, setIsLightBackground] = useState(false)
-
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current)
@@ -42,131 +39,16 @@ export function HomeSection({
     return () => clearTimeout(t)
   }, [])
 
-  /* ─── Detect background brightness ───────────────────────────────────── */
-
   const bgImage = hoveredCat
     ? CATEGORY_IMAGES[hoveredCat]
     : HERO_IMAGES[currentSlide]
 
-  useEffect(() => {
-    if (!bgImage) {
-      setIsLightBackground(false)
-      return
-    }
-
-    const img = new Image()
-
-    img.crossOrigin = 'anonymous'
-
-    img.onload = () => {
-      try {
-        if (!canvasRef.current) {
-          canvasRef.current = document.createElement('canvas')
-        }
-
-        const canvas = canvasRef.current
-        const ctx = canvas.getContext('2d', {
-          willReadFrequently: true,
-        })
-
-        if (!ctx) return
-
-        const sampleSize = 40
-
-        canvas.width = sampleSize
-        canvas.height = sampleSize
-
-        ctx.drawImage(img, 0, 0, sampleSize, sampleSize)
-
-        const data = ctx.getImageData(
-          0,
-          0,
-          sampleSize,
-          sampleSize,
-        ).data
-
-        let totalBrightness = 0
-        let pixels = 0
-
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i]
-          const g = data[i + 1]
-          const b = data[i + 2]
-
-          const brightness =
-            0.299 * r +
-            0.587 * g +
-            0.114 * b
-
-          totalBrightness += brightness
-          pixels++
-        }
-
-        const averageBrightness =
-          totalBrightness / pixels
-
-        /*
-         * 145 is the threshold.
-         * Above it = light background → dark text.
-         * Below it = dark background → white text.
-         */
-        setIsLightBackground(averageBrightness > 145)
-      } catch {
-        // If the image cannot be sampled because of CORS,
-        // keep the default white text.
-        setIsLightBackground(false)
-      }
-    }
-
-    img.onerror = () => {
-      setIsLightBackground(false)
-    }
-
-    img.src = bgImage
-  }, [bgImage])
-
-  /* ─── Dynamic colors ─────────────────────────────────────────────────── */
-
-  const mainTextColor = isLightBackground
-    ? '#111111'
-    : '#f0ede8'
-
-  const normalTextColor = isLightBackground
-    ? 'rgba(17,17,17,0.78)'
-    : 'rgba(240,237,232,0.85)'
-
-  const dimTextColor = isLightBackground
-    ? 'rgba(17,17,17,0.35)'
-    : 'rgba(240,237,232,0.3)'
-
-  const subtleTextColor = isLightBackground
-    ? 'rgba(17,17,17,0.45)'
-    : 'rgba(240,237,232,0.38)'
-
-  const iconColor = isLightBackground
-    ? 'rgba(17,17,17,0.72)'
-    : 'rgba(240,237,232,0.72)'
-
-  const lineColor = isLightBackground
-    ? 'rgba(17,17,17,0.45)'
-    : 'rgba(240,237,232,0.4)'
-
-  const textShadow = isLightBackground
-    ? '0 1px 8px rgba(255,255,255,0.35)'
-    : '0 1px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6)'
-
-  const hoveredTextShadow = isLightBackground
-    ? '0 1px 10px rgba(255,255,255,0.5)'
-    : '0 1px 12px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)'
-
   return (
     <section
       className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
-      style={{
-        userSelect: 'none',
-      }}
+      style={{ userSelect: 'none' }}
     >
-      {/* ─── Slideshow images ──────────────────────────────────────────── */}
+      {/* ─── Slideshow ───────────────────────────────────────────────────── */}
 
       {HERO_IMAGES.map((src, i) => (
         <img
@@ -176,19 +58,16 @@ export function HomeSection({
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{
-            opacity:
-              !hoveredCat && i === currentSlide
-                ? 1
-                : 0,
+            opacity: !hoveredCat && i === currentSlide ? 1 : 0,
             transition:
               'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
           }}
         />
       ))}
 
-      {/* ─── Category hover image ──────────────────────────────────────── */}
+      {/* ─── Category hover image ────────────────────────────────────────── */}
 
-      {hoveredCat && CATEGORY_IMAGES[hoveredCat] && (
+      {hoveredCat && (
         <img
           key={hoveredCat}
           src={CATEGORY_IMAGES[hoveredCat]}
@@ -203,7 +82,7 @@ export function HomeSection({
         />
       )}
 
-      {/* ─── Category list ─────────────────────────────────────────────── */}
+      {/* ─── Category list ───────────────────────────────────────────────── */}
 
       <div
         className="absolute top-1/2 -translate-y-1/2 flex flex-col hidden md:flex"
@@ -212,12 +91,16 @@ export function HomeSection({
           opacity: revealed ? 1 : 0,
           transition:
             'opacity 900ms cubic-bezier(0.4,0,0.2,1) 400ms',
+
+          // Automatically switches between black/white
+          // depending on the background.
+          mixBlendMode: 'difference',
+          color: '#ffffff',
         }}
       >
         {WORK_CATEGORIES.map((cat) => {
           const isHovered = hoveredCat === cat
-          const isDimmed =
-            hoveredCat !== null && !isHovered
+          const isDimmed = hoveredCat !== null && !isHovered
 
           return (
             <button
@@ -235,25 +118,18 @@ export function HomeSection({
                   fontFamily:
                     "'DM Sans', system-ui, sans-serif",
 
-                  /* Same size as before */
+                  // Same size as before, now bold
+                  fontWeight: 700,
                   fontSize:
                     'clamp(0.67rem, 2.1vw, 0.78rem)',
 
-                  /* Same letter spacing as before */
                   letterSpacing: '0.22em',
-
                   textTransform: 'uppercase',
-
                   display: 'inline-block',
 
-                  /* Only changed from 300 → 700 */
-                  fontWeight: 700,
-
-                  color: isHovered
-                    ? mainTextColor
-                    : isDimmed
-                      ? dimTextColor
-                      : normalTextColor,
+                  color: isDimmed
+                    ? 'rgba(255,255,255,0.35)'
+                    : 'rgba(255,255,255,0.95)',
 
                   transform: isHovered
                     ? 'translateX(4px)'
@@ -262,9 +138,8 @@ export function HomeSection({
                   transition:
                     'color 350ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4,0,0.2,1)',
 
-                  textShadow: isHovered
-                    ? hoveredTextShadow
-                    : textShadow,
+                  // Shadow completely removed
+                  textShadow: 'none',
                 }}
               >
                 {cat}
@@ -275,7 +150,8 @@ export function HomeSection({
                 style={{
                   width: isHovered ? '100%' : '0%',
 
-                  backgroundColor: lineColor,
+                  backgroundColor:
+                    'rgba(255,255,255,0.7)',
 
                   transition:
                     'width 350ms cubic-bezier(0.4,0,0.2,1)',
@@ -288,15 +164,21 @@ export function HomeSection({
         })}
       </div>
 
-      {/* ─── Bottom left — discipline ──────────────────────────────────── */}
+      {/* ─── Bottom left ─────────────────────────────────────────────────── */}
 
       <div
         className="absolute bottom-8 left-10 md:left-14"
         style={{
           opacity: revealed ? 1 : 0,
+
           transition:
             'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
+
           zIndex: 2,
+
+          // Automatic black / white
+          mixBlendMode: 'difference',
+          color: '#ffffff',
         }}
       >
         <p
@@ -306,35 +188,33 @@ export function HomeSection({
               "'DM Sans', system-ui, sans-serif",
 
             fontWeight: 300,
-
-            color: subtleTextColor,
-
-            transition:
-              'color 400ms ease',
-
-            textShadow,
           }}
         >
           Photographer &amp; Filmmaker
         </p>
       </div>
 
-      {/* ─── Right — social icons ──────────────────────────────────────── */}
+      {/* ─── Social icons ────────────────────────────────────────────────── */}
 
       <div
         className="absolute top-1/2 -translate-y-1/2 right-10 md:right-14 flex flex-col items-center gap-6"
         style={{
           opacity: revealed ? 1 : 0,
+
           transition:
             'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
+
           zIndex: 2,
+
+          // Automatic black / white
+          mixBlendMode: 'difference',
+          color: '#ffffff',
         }}
       >
         {[
           {
             label: 'Instagram',
-            href:
-              'https://www.instagram.com/aliabiyar/',
+            href: 'https://www.instagram.com/aliabiyar/',
             icon: (
               <svg
                 width="18"
@@ -355,11 +235,7 @@ export function HomeSection({
                   rx="5"
                   ry="5"
                 />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="4.5"
-                />
+                <circle cx="12" cy="12" r="4.5" />
                 <circle
                   cx="17.5"
                   cy="6.5"
@@ -412,28 +288,21 @@ export function HomeSection({
             ),
           },
         ].map(({ label, href, icon }) => {
-          const isHovered =
-            hoveredSocial === label
+          const isHovered = hoveredSocial === label
 
           return (
             <div
               key={label}
               className="relative flex items-center justify-center"
-              onMouseEnter={() =>
-                setHoveredSocial(label)
-              }
-              onMouseLeave={() =>
-                setHoveredSocial(null)
-              }
+              onMouseEnter={() => setHoveredSocial(label)}
+              onMouseLeave={() => setHoveredSocial(null)}
             >
               {/* Tooltip */}
 
               <span
                 style={{
                   position: 'absolute',
-
                   right: 'calc(100% + 14px)',
-
                   top: '50%',
 
                   transform: isHovered
@@ -441,33 +310,24 @@ export function HomeSection({
                     : 'translateY(-50%) translateX(6px)',
 
                   opacity: isHovered ? 1 : 0,
-
                   pointerEvents: 'none',
-
                   whiteSpace: 'nowrap',
 
                   fontFamily:
                     "'DM Sans', system-ui, sans-serif",
 
                   fontSize: '0.58rem',
-
                   fontWeight: 300,
-
                   letterSpacing: '0.16em',
-
                   textTransform: 'uppercase',
 
-                  color: isHovered
-                    ? mainTextColor
-                    : normalTextColor,
+                  color: 'rgba(255,255,255,0.8)',
 
                   transition:
-                    'opacity 250ms ease, transform 250ms ease, color 400ms ease',
+                    'opacity 250ms ease, transform 250ms ease',
 
-                  textShadow:
-                    isLightBackground
-                      ? '0 1px 8px rgba(255,255,255,0.4)'
-                      : '0 1px 8px rgba(0,0,0,0.8)',
+                  // No shadow
+                  textShadow: 'none',
                 }}
               >
                 {label}
@@ -481,15 +341,11 @@ export function HomeSection({
                 className="flex items-center justify-center transition-colors duration-300"
                 style={{
                   color: isHovered
-                    ? mainTextColor
-                    : iconColor,
+                    ? '#ffffff'
+                    : 'rgba(255,255,255,0.72)',
 
                   padding: '8px',
-
                   margin: '-8px',
-
-                  transition:
-                    'color 300ms ease',
                 }}
               >
                 {icon}
