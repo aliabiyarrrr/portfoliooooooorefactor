@@ -21,8 +21,8 @@ export function Nav({
   const navItems = [
     { label: 'Home',     action: () => go('home'),                active: page === 'home' },
     { label: 'Projects', action: () => { onWorkClick(); close() }, active: page === 'work' || page === 'project' },
-    { label: 'Services', action: () => go('services'),             active: page === 'services' },
     { label: 'About',    action: () => go('about'),                active: page === 'about' },
+    { label: 'Contact',  action: () => go('contact'),              active: page === 'contact' },
   ]
 
   return (
@@ -38,9 +38,9 @@ export function Nav({
           Ali Abiyar
         </button>
 
-        {/* Right: inline nav links + contact CTA */}
-        <div className="flex items-center gap-7">
-          {navItems.map((item) => (
+        {/* Right: inline nav links + contact CTA — desktop only */}
+        <div className="hidden md:flex items-center gap-7">
+          {navItems.filter((item) => item.label !== 'Contact').map((item) => (
             <button
               key={item.label}
               onClick={item.action}
@@ -86,8 +86,82 @@ export function Nav({
             Contact
           </button>
         </div>
+
+        {/* Right: hamburger button — mobile only */}
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="md:hidden flex flex-col items-end justify-center gap-[5px]"
+          style={{ width: '28px', height: '28px' }}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          <span
+            style={{
+              display: 'block',
+              height: '1.5px',
+              background: '#f0ede8',
+              width: '22px',
+              transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none',
+              transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1)',
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              height: '1.5px',
+              background: '#f0ede8',
+              width: '22px',
+              opacity: menuOpen ? 0 : 1,
+              transition: 'opacity 200ms ease',
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              height: '1.5px',
+              background: '#f0ede8',
+              width: menuOpen ? '22px' : '16px',
+              transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none',
+              transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1), width 300ms ease',
+            }}
+          />
+        </button>
+      </div>
+
+      {/* Mobile dropdown menu */}
+      <div
+        className="md:hidden"
+        style={{
+          overflow: 'hidden',
+          maxHeight: menuOpen ? '320px' : '0px',
+          opacity: menuOpen ? 1 : 0,
+          transition: 'max-height 350ms cubic-bezier(0.4,0,0.2,1), opacity 300ms ease',
+        }}
+      >
+        <div
+          className="flex flex-col items-start gap-1"
+          style={{ paddingTop: '24px', paddingBottom: '8px' }}
+        >
+          {navItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={item.action}
+              className="text-left transition-colors duration-200"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 400,
+                fontSize: '0.85rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: item.active ? '#f0ede8' : 'rgba(240,237,232,0.55)',
+                padding: '10px 0',
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
     </nav>
   )
 }
-
