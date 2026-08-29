@@ -37,7 +37,7 @@ function ImageRow({ value }: { value: any }) {
   return (
     <div className="px-8 md:px-16 py-2 md:py-4">
       <div
-        className="flex w-full items-start"
+        className="flex w-full items-start flex-col md:flex-row"
         style={{
           gap: '8px',
         }}
@@ -52,7 +52,9 @@ function ImageRow({ value }: { value: any }) {
                 margin: 0,
                 minWidth: 0,
                 flex: `${ratio} 1 0`,
+                width: '100%',
               }}
+              className="md:w-auto"
             >
               <img
                 src={urlFor(img, 1800)}
