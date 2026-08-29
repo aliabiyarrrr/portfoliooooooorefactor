@@ -16,6 +16,7 @@ export function Nav({
   const [menuOpen, setMenuOpen] = useState(false)
 
   const close = () => setMenuOpen(false)
+
   const go = (p: Page) => {
     navigate(p)
     close()
@@ -92,7 +93,9 @@ export function Nav({
                   e.currentTarget.style.opacity = '1'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = item.active ? '1' : '0.65'
+                  e.currentTarget.style.opacity = item.active
+                    ? '1'
+                    : '0.65'
                 }}
               >
                 {item.label}
@@ -121,7 +124,8 @@ export function Nav({
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement
               el.style.background = 'rgba(255,255,255,0.12)'
-              el.style.opacity = page === 'contact' ? '1' : '0.85'
+              el.style.opacity =
+                page === 'contact' ? '1' : '0.85'
             }}
           >
             Contact
@@ -180,21 +184,36 @@ export function Nav({
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* ────────────────────────────────────────────────────────────────
+          Mobile dropdown
+
+          IMPORTANT:
+          This is positioned relative to the screen/nav itself,
+          not underneath the brand on the left.
+      ──────────────────────────────────────────────────────────────── */}
+
       <div
         className="md:hidden"
         style={{
+          position: 'absolute',
+          top: '58px',
+          right: '28px',
+
           overflow: 'hidden',
+
           maxHeight: menuOpen ? '320px' : '0px',
           opacity: menuOpen ? 1 : 0,
+
           transition:
             'max-height 350ms cubic-bezier(0.4,0,0.2,1), opacity 300ms ease',
+
+          pointerEvents: menuOpen ? 'auto' : 'none',
         }}
       >
         <div
-          className="flex flex-col items-start gap-1"
+          className="flex flex-col items-end gap-1"
           style={{
-            paddingTop: '24px',
+            paddingTop: '8px',
             paddingBottom: '8px',
           }}
         >
@@ -202,7 +221,7 @@ export function Nav({
             <button
               key={item.label}
               onClick={item.action}
-              className="text-left transition-opacity duration-200"
+              className="text-right transition-opacity duration-200"
               style={{
                 fontFamily: "'DM Sans', system-ui, sans-serif",
                 fontWeight: 400,
@@ -212,6 +231,7 @@ export function Nav({
                 color: '#ffffff',
                 opacity: item.active ? 1 : 0.65,
                 padding: '10px 0',
+                whiteSpace: 'nowrap',
               }}
             >
               {item.label}
