@@ -156,6 +156,36 @@ const ptComponents = {
     imageRow: ({ value }: any) => (
       <ImageRow value={value} />
     ),
+
+    /* ── Video ─────────────────────────────────────────────────────────── */
+
+    layoutVideo: ({ value }: any) => {
+      if (!value?.videoUrl) return null
+
+      return (
+        <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
+          <div style={{ width: '100%', maxWidth: '100%' }}>
+            <video
+              src={value.videoUrl}
+              controls
+              playsInline
+              style={{
+                display: 'block',
+                width: '100%',
+                height: 'auto',
+                background: '#0f0e0d',
+              }}
+            />
+
+            {value.caption && (
+              <p className="text-[rgba(240,237,232,0.35)] text-[0.62rem] tracking-[0.14em] uppercase mt-3 text-center">
+                {value.caption}
+              </p>
+            )}
+          </div>
+        </div>
+      )
+    },
   },
 }
 
@@ -356,6 +386,29 @@ export function ProjectDetail({
           </div>
         </>
 
+      )}
+
+      {/* ── Standalone videos ─────────────────────────────────────────── */}
+
+      {project.videos && project.videos.length > 0 && (
+        <div className="mt-2 flex flex-col gap-2">
+          {project.videos.map((src, i) => (
+            <div key={i} className="px-8 md:px-16 py-10 md:py-16 flex justify-center">
+              <video
+                src={src}
+                controls
+                playsInline
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  maxWidth: '900px',
+                  height: 'auto',
+                  background: '#0f0e0d',
+                }}
+              />
+            </div>
+          ))}
+        </div>
       )}
 
       {/* ── Back to projects ───────────────────────────────────────────── */}
