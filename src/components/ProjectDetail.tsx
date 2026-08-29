@@ -1,7 +1,91 @@
 import { useState, useEffect } from 'react'
+import { PortableText } from '@portabletext/react'
 
 import type { Project } from '../data/siteData'
+import { urlFor } from '../lib/projects'
 import { Reveal } from './Reveal'
+
+/* ─── Portable Text renderers ────────────────────────────────────────────── */
+
+const ptComponents = {
+  block: {
+    normal: ({ children }: any) => (
+      <p className="px-8 md:px-16 text-[rgba(240,237,232,0.55)] text-sm leading-[1.9] font-light max-w-2xl mb-8">
+        {children}
+      </p>
+    ),
+    h3: ({ children }: any) => (
+      <h3
+        className="px-8 md:px-16 font-[Cormorant_Garamond] font-bold text-[#f0ede8] mb-6 mt-4"
+        style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)' }}
+      >
+        {children}
+      </h3>
+    ),
+  },
+  types: {
+    layoutImage: ({ value }: any) => {
+      const widthPct = value?.width && value.width >= 20 && value.width <= 100 ? value.width : 100
+
+      return (
+        <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
+          <div style={{ width: `${widthPct}%`, maxWidth: '100%' }}>
+            <img
+              src={urlFor(value, 1600)}
+              alt={value.caption || ''}
+              loading="lazy"
+              className="w-full h-auto"
+              style={{ display: 'block', filter: 'brightness(0.9)' }}
+            />
+            {value.caption && (
+              <p className="text-[rgba(240,237,232,0.35)] text-[0.62rem] tracking-[0.14em] uppercase mt-3 text-center">
+                {value.caption}
+              </p>
+            )}
+          </div>
+        </div>
+      )
+    },
+    imageRow: ({ value }: any) => {
+      const images = value?.images || []
+
+      if (images.length === 0) return null
+
+      return (
+        <div className="px-8 md:px-16 py-6 md:py-10">
+          <div
+            className="flex flex-wrap items-end justify-center"
+            style={{ gap: '8px' }}
+          >
+            {images.map((img: any, i: number) => (
+              <figure key={i} style={{ margin: 0 }}>
+                <img
+                  src={urlFor(img, 1200)}
+                  alt={img.caption || ''}
+                  loading="lazy"
+                  style={{
+                    display: 'block',
+                    height: 'clamp(220px, 34vw, 460px)',
+                    width: 'auto',
+                    maxWidth: '100%',
+                    filter: 'brightness(0.9)',
+                  }}
+                />
+                {img.caption && (
+                  <figcaption className="text-[rgba(240,237,232,0.35)] text-[0.6rem] tracking-[0.14em] uppercase mt-2 text-center">
+                    {img.caption}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        </div>
+      )
+    },
+  },
+}
+
+/* ─── ProjectDetail ───────────────────────────────────────────────────────── */
 
 export function ProjectDetail({
   project,
@@ -25,6 +109,8 @@ export function ProjectDetail({
     : project.category === 'Portraits' ? 'Personal / Portrait'
     : project.category === 'Cafe & Restaurants' ? 'Café & Restaurant'
     : 'Personal / Video'
+
+  const hasCustomContent = Array.isArray(project.content) && project.content.length > 0
 
   const imgs = project.images.length > 0
     ? project.images
@@ -113,40 +199,48 @@ export function ProjectDetail({
 
       <div className="mx-8 md:mx-16 h-px bg-[rgba(240,237,232,0.06)]" />
 
-      <Reveal y={0}>
-        <div
-          className="w-full overflow-hidden bg-[#0f0e0d]"
-          style={{ height: 'clamp(420px, 72vh, 860px)' }}
-        >
-          <img
-            src={imgs[0]}
-            alt={project.title}
-            className="w-full h-full object-cover"
-            style={{ filter: 'brightness(0.86)' }}
-          />
+      {hasCustomContent ? (
+        <div className="mt-10 md:mt-16">
+          <PortableText value={project.content as any} components={ptComponents} />
         </div>
-      </Reveal>
-
-      <div className="mt-2 flex flex-col gap-2">
-        {imgs.slice(1).map((src, i) => (
-          <Reveal key={i} delay={50}>
-            <div className="px-8 md:px-16 py-10 md:py-16">
-              <div
-                className="overflow-hidden bg-[#0f0e0d]"
-                style={{ aspectRatio: '4/3' }}
-              >
-                <img
-                  src={src}
-                  alt={`${project.title} — ${i + 2}`}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  style={{ filter: 'brightness(0.85)' }}
-                />
-              </div>
+      ) : (
+        <>
+          <Reveal y={0}>
+            <div
+              className="w-full overflow-hidden bg-[#0f0e0d]"
+              style={{ height: 'clamp(420px, 72vh, 860px)' }}
+            >
+              <img
+                src={imgs[0]}
+                alt={project.title}
+                className="w-full h-full object-cover"
+                style={{ filter: 'brightness(0.86)' }}
+              />
             </div>
           </Reveal>
-        ))}
-      </div>
+
+          <div className="mt-2 flex flex-col gap-2">
+            {imgs.slice(1).map((src, i) => (
+              <Reveal key={i} delay={50}>
+                <div className="px-8 md:px-16 py-10 md:py-16">
+                  <div
+                    className="overflow-hidden bg-[#0f0e0d]"
+                    style={{ aspectRatio: '4/3' }}
+                  >
+                    <img
+                      src={src}
+                      alt={`${project.title} — ${i + 2}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'brightness(0.85)' }}
+                    />
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="mt-2 border-t border-[rgba(240,237,232,0.06)]">
         <button
