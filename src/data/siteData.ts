@@ -28,14 +28,13 @@ export const HERO_IMAGES = [
 
 /* ─── category preview images ─────────────────────────────────────────────── */
 
-export const CATEGORY_IMAGES: Partial<Record<WorkCategory, string>> = {
-  Fashion: '/fashion.jpg',
-  Commercial: '/commercial%20.jpg',
-  Portraits: '/Portraits.jpg',
-  'Cafe & Restaurants': '/cafe.jpg',
+export const CATEGORY_IMAGES: Record<WorkCategory, string> = {
+  Fashion: '/1fashion.jpg',
+  Commercial: '/1commercial .jpg',
+  Portraits: '/1Portraits.jpg',
+  'Cafe & Restaurants': '/1cafe.jpg',
+  Videos: '',
 }
-
-/* ─── work categories ─────────────────────────────────────────────────────── */
 
 export const WORK_CATEGORIES: WorkCategory[] = [
   'Fashion',
@@ -75,7 +74,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1575354196644-9de51010f481?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'noir-study',
     title: 'Noir Study',
@@ -91,7 +89,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1610765431323-d88c88a2b2c8?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'monologue',
     title: 'Monologue',
@@ -107,7 +104,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1613915617430-8ab0fd7c6baf?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'rosehip-campaign',
     title: 'Rosehip Campaign',
@@ -123,7 +119,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1770319810923-2944895fb5cb?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'studio-session',
     title: 'Studio Session',
@@ -139,7 +134,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1576280314550-773c50583407?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'night-city',
     title: 'Night City',
@@ -156,7 +150,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1685466235531-c340828b8944?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'faces',
     title: 'Faces',
@@ -172,7 +165,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1770896687186-895de50a4123?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'the-hearth',
     title: 'The Hearth',
@@ -189,7 +181,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1685602729695-0664ea4e5c06?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'morning-shift',
     title: 'Morning Shift',
@@ -205,7 +196,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1728761390316-935ffeb3fbcc?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'between-frames',
     title: 'Between Frames',
@@ -221,7 +211,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1759308553474-ce2c768a6b7c?w=1200&h=900&fit=crop&auto=format',
     ],
   },
-
   {
     id: 'latitude',
     title: 'Latitude',
