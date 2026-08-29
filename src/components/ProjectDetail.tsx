@@ -122,8 +122,8 @@ const ptComponents = {
         <div className="px-8 md:px-16 py-2 md:py-4 flex justify-center">
           <div
             style={{
-              width: `${widthPct}%`,
-              maxWidth: '100%',
+              width: `${Math.min(widthPct, 92)}%`,
+              maxWidth: '1200px',
             }}
           >
             <img
@@ -133,10 +133,6 @@ const ptComponents = {
               className="w-full h-auto"
               style={{
                 display: 'block',
-                maxHeight: '78vh',
-                width: '100%',
-                height: 'auto',
-                objectFit: 'contain',
               }}
             />
 
@@ -166,7 +162,7 @@ const ptComponents = {
           <div
             style={{
               width: '100%',
-              maxWidth: '1400px',
+              maxWidth: '1200px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -179,8 +175,8 @@ const ptComponents = {
               style={{
                 display: 'block',
                 width: '100%',
-                maxWidth: '1400px',
-                maxHeight: '84vh',
+                maxWidth: '1200px',
+                maxHeight: '78vh',
                 height: 'auto',
                 objectFit: 'contain',
                 background: '#0f0e0d',
@@ -426,7 +422,7 @@ export function ProjectDetail({
               <div
                 style={{
                   width: '100%',
-                  maxWidth: '1400px',
+                  maxWidth: '1200px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -440,8 +436,8 @@ export function ProjectDetail({
                   style={{
                     display: 'block',
                     width: '100%',
-                    maxWidth: '1400px',
-                    maxHeight: '84vh',
+                    maxWidth: '1200px',
+                    maxHeight: '78vh',
                     height: 'auto',
                     objectFit: 'contain',
                     background: '#0f0e0d',
