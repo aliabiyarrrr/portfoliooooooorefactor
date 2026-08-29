@@ -242,11 +242,11 @@ function EditorialEntry({
         )}
 
         <h2
-          className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase"
+          className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] uppercase whitespace-nowrap"
           style={{
-            fontSize: 'clamp(1.15rem, 3vw, 2.5rem)',
+            fontSize: 'clamp(0.9rem, 2.4vw, 2.2rem)',
             lineHeight: 1.05,
-            letterSpacing: '0.06em',
+            letterSpacing: '0.05em',
             transform: hovered ? 'translateY(-2px)' : 'none',
             transition:
               'transform 500ms cubic-bezier(0.4,0,0.2,1)',
