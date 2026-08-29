@@ -138,6 +138,11 @@ const ptComponents = {
               className="w-full h-auto"
               style={{
                 display: 'block',
+                maxHeight: '80vh',
+                width: 'auto',
+                maxWidth: '100%',
+                objectFit: 'contain',
+                margin: '0 auto',
               }}
             />
 
@@ -164,15 +169,24 @@ const ptComponents = {
 
       return (
         <div className="px-8 md:px-16 py-6 md:py-10 flex justify-center">
-          <div style={{ width: '100%', maxWidth: '100%' }}>
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '100%',
+            }}
+          >
             <video
               src={value.videoUrl}
               controls
               playsInline
               style={{
                 display: 'block',
-                width: '100%',
-                height: 'auto',
+                width: 'auto',
+                maxWidth: '100%',
+                height: '80vh',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+                margin: '0 auto',
                 background: '#0f0e0d',
               }}
             />
@@ -400,9 +414,11 @@ export function ProjectDetail({
                 playsInline
                 style={{
                   display: 'block',
-                  width: '100%',
-                  maxWidth: '900px',
-                  height: 'auto',
+                  width: 'auto',
+                  maxWidth: '100%',
+                  height: '80vh',
+                  maxHeight: '80vh',
+                  objectFit: 'contain',
                   background: '#0f0e0d',
                 }}
               />
