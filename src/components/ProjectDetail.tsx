@@ -19,6 +19,93 @@ type GalleryItem =
       caption?: string
     }
 
+/* ─── Single Image ───────────────────────────────────────────────────────── */
+
+function SingleImage({
+  value,
+  onImageClick,
+}: {
+  value: any
+  onImageClick: (src: string, caption?: string) => void
+}) {
+  const [isLandscape, setIsLandscape] = useState(false)
+
+  const widthPct =
+    value?.width &&
+    value.width >= 20 &&
+    value.width <= 100
+      ? value.width
+      : 100
+
+  const src = urlFor(value, 1800)
+
+  return (
+    <div
+      className={
+        isLandscape
+          ? 'px-0 py-2 md:py-4 flex justify-center'
+          : 'px-4 md:px-16 py-2 md:py-4 flex justify-center'
+      }
+    >
+      <div
+        className={
+          isLandscape
+            ? 'w-full'
+            : 'w-full md:w-[var(--desktop-image-width)]'
+        }
+        style={
+          isLandscape
+            ? {
+                maxWidth: 'none',
+              }
+            : ({
+                '--desktop-image-width': `${Math.min(
+                  widthPct,
+                  92
+                )}%`,
+                maxWidth: '1200px',
+              } as React.CSSProperties)
+        }
+      >
+        <img
+          src={src}
+          alt={value.caption || ''}
+          loading="lazy"
+          className="w-full h-auto cursor-pointer"
+          style={{
+            display: 'block',
+          }}
+          onLoad={(e) => {
+            const img = e.currentTarget
+
+            if (
+              img.naturalWidth &&
+              img.naturalHeight
+            ) {
+              setIsLandscape(
+                img.naturalWidth >
+                  img.naturalHeight
+              )
+            }
+          }}
+          onClick={() =>
+            onImageClick(
+              src,
+              value.caption || ''
+            )
+          }
+        />
+
+        {value.caption && (
+          <p className="text-[rgba(240,237,232,0.35)] text-[0.62rem] tracking-[0.14em] uppercase mt-3 text-center">
+            {value.caption}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Image Row ─────────────────────────────────────────────────────────── */
 
 function ImageRow({
@@ -153,53 +240,12 @@ function createPTComponents(
     types: {
       /* ── Single image ─────────────────────────────────────────────── */
 
-      layoutImage: ({ value }: any) => {
-        const widthPct =
-          value?.width &&
-          value.width >= 20 &&
-          value.width <= 100
-            ? value.width
-            : 100
-
-        const src = urlFor(value, 1800)
-
-        return (
-          <div className="px-4 md:px-16 py-2 md:py-4 flex justify-center">
-            <div
-              className="w-full md:w-[var(--desktop-image-width)]"
-              style={{
-                '--desktop-image-width': `${Math.min(
-                  widthPct,
-                  92
-                )}%`,
-                maxWidth: '1200px',
-              } as React.CSSProperties}
-            >
-              <img
-                src={src}
-                alt={value.caption || ''}
-                loading="lazy"
-                className="w-full h-auto cursor-pointer"
-                style={{
-                  display: 'block',
-                }}
-                onClick={() =>
-                  onImageClick(
-                    src,
-                    value.caption || ''
-                  )
-                }
-              />
-
-              {value.caption && (
-                <p className="text-[rgba(240,237,232,0.35)] text-[0.62rem] tracking-[0.14em] uppercase mt-3 text-center">
-                  {value.caption}
-                </p>
-              )}
-            </div>
-          </div>
-        )
-      },
+      layoutImage: ({ value }: any) => (
+        <SingleImage
+          value={value}
+          onImageClick={onImageClick}
+        />
+      ),
 
       /* ── Image row ────────────────────────────────────────────────── */
 
@@ -366,7 +412,7 @@ function FullscreenGallery({
         setTouchStartX(null)
       }}
     >
-      {/* ── Top controls ─────────────────────────────────────────────── */}
+      {/* ── Top controls ─────────────────────────────── */}
 
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 md:px-8 py-5">
         <div className="text-[rgba(240,237,232,0.45)] text-[0.6rem] tracking-[0.2em] uppercase">
@@ -382,7 +428,7 @@ function FullscreenGallery({
         </button>
       </div>
 
-      {/* ── Previous ────────────────────────────────────────────────── */}
+      {/* ── Previous ────────────────────────────────── */}
 
       {items.length > 1 && (
         <button
@@ -396,7 +442,7 @@ function FullscreenGallery({
         </button>
       )}
 
-      {/* ── Next ─────────────────────────────────────────────────────── */}
+      {/* ── Next ─────────────────────────────────────── */}
 
       {items.length > 1 && (
         <button
@@ -410,7 +456,7 @@ function FullscreenGallery({
         </button>
       )}
 
-      {/* ── Main media ───────────────────────────────────────────────── */}
+      {/* ── Main media ───────────────────────────────── */}
 
       <div className="absolute inset-0 flex items-center justify-center px-4 md:px-16 pt-16 pb-16">
         {item.type === 'image' ? (
@@ -433,7 +479,7 @@ function FullscreenGallery({
         )}
       </div>
 
-      {/* ── Caption ──────────────────────────────────────────────────── */}
+      {/* ── Caption ──────────────────────────────────── */}
 
       {item.caption && (
         <div className="absolute bottom-5 left-0 right-0 z-20 px-8 text-center">
@@ -443,7 +489,7 @@ function FullscreenGallery({
         </div>
       )}
 
-      {/* ── Mobile navigation ────────────────────────────────────────── */}
+      {/* ── Mobile navigation ────────────────────────── */}
 
       {items.length > 1 && (
         <div className="absolute bottom-5 left-0 right-0 z-20 flex md:hidden items-center justify-center gap-8">
@@ -617,7 +663,7 @@ export function ProjectDetail({
     <>
       <article className="min-h-screen bg-[#0c0c0b]">
 
-        {/* ── Header ───────────────────────────────────────────────── */}
+        {/* ── Header ───────────────────────────────── */}
 
         <header
           className="px-8 md:px-16 pt-32 pb-16"
@@ -709,11 +755,11 @@ export function ProjectDetail({
           )}
         </header>
 
-        {/* ── Divider ───────────────────────────────────────────────── */}
+        {/* ── Divider ───────────────────────────────── */}
 
         <div className="mx-8 md:mx-16 h-px bg-[rgba(240,237,232,0.06)]" />
 
-        {/* ── Project content ───────────────────────────────────────── */}
+        {/* ── Project content ───────────────────────── */}
 
         {hasCustomContent ? (
 
@@ -721,12 +767,12 @@ export function ProjectDetail({
             <PortableText
               value={project.content as any}
               components={createPTComponents(
-                (src, caption) =>
+                (src) =>
                   openGallery(
                     src,
                     'image'
                   ),
-                (src, caption) =>
+                (src) =>
                   openGallery(
                     src,
                     'video'
@@ -739,7 +785,7 @@ export function ProjectDetail({
 
           <>
 
-            {/* ── Cover image ─────────────────────────────────────── */}
+            {/* ── Cover image ───────────────────────── */}
 
             <Reveal y={0}>
               <div
@@ -766,7 +812,7 @@ export function ProjectDetail({
               </div>
             </Reveal>
 
-            {/* ── Remaining images ──────────────────────────────── */}
+            {/* ── Remaining images ──────────────────── */}
 
             <div className="mt-2 flex flex-col gap-2">
 
@@ -820,7 +866,7 @@ export function ProjectDetail({
 
         )}
 
-        {/* ── Standalone videos ───────────────────────────────────── */}
+        {/* ── Standalone videos ───────────────────── */}
 
         {project.videos &&
           project.videos.length > 0 && (
@@ -883,7 +929,7 @@ export function ProjectDetail({
 
           )}
 
-        {/* ── Back to projects ────────────────────────────────────── */}
+        {/* ── Back to projects ─────────────────────── */}
 
         <div className="mt-2 border-t border-[rgba(240,237,232,0.06)]">
 
@@ -912,7 +958,7 @@ export function ProjectDetail({
 
       </article>
 
-      {/* ── Fullscreen Gallery ─────────────────────────────────────── */}
+      {/* ── Fullscreen Gallery ─────────────────────── */}
 
       {galleryOpen &&
         galleryItems.length > 0 && (
