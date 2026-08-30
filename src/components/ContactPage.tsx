@@ -86,8 +86,8 @@ export function ContactPage() {
     },
     {
       label: 'Email',
-      value: 'a.abiyar@gmail.com',
-      href: 'mailto:a.abiyar@gmail.com',
+      value: 'contact@aliabiyar.com',
+      href: 'mailto:contact@aliabiyar.com',
     },
   ]
 
