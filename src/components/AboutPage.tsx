@@ -132,7 +132,7 @@ export function AboutPage() {
           <div className="flex flex-col gap-6 max-w-md">
 
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
-              I’m Ali Abiyar, a photographer and filmmaker based in Tehran.
+              I’m Ali Abiyar, a photographer and filmmaker based in Tehran, Iran.
             </p>
 
             <p className="text-[rgba(240,237,232,0.62)] text-sm leading-[1.9] font-light">
@@ -174,7 +174,7 @@ export function AboutPage() {
           </p>
 
           <p className="font-[Cormorant_Garamond] font-bold text-[#f0ede8] text-lg">
-            Tehran
+            Tehran, Iran
           </p>
         </div>
 
