@@ -3,8 +3,6 @@ import { useState, useEffect, useCallback } from 'react'
 import type { Page, WorkCategory } from '../data/siteData'
 import { HERO_IMAGES, CATEGORY_IMAGES, WORK_CATEGORIES } from '../data/siteData'
 
-/* ─── HomeSection ─────────────────────────────────────────────────────────── */
-
 export function HomeSection({
   navigate,
 }: {
@@ -17,8 +15,6 @@ export function HomeSection({
   const [revealed, setRevealed] = useState(false)
   const [loadedSlides, setLoadedSlides] = useState<number[]>([0])
 
-  /* ─── Image preload ───────────────────────────────────────────────────── */
-
   const preloadImage = useCallback((src: string) => {
     return new Promise<void>((resolve) => {
       const img = new Image()
@@ -30,8 +26,10 @@ export function HomeSection({
     })
   }, [])
 
-  /* ─── Preload next slide in background ────────────────────────────────── */
-
+  /*
+   * Preload the next slide in the background.
+   * The first slide is NOT delayed by this process.
+   */
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
 
@@ -47,7 +45,7 @@ export function HomeSection({
       setLoadedSlides((slides) =>
         slides.includes(nextSlide)
           ? slides
-          : [...slides, nextSlide]
+          : [...slides, nextSlide],
       )
     })
 
@@ -56,22 +54,22 @@ export function HomeSection({
     }
   }, [currentSlide, loadedSlides, preloadImage])
 
-  /* ─── Slideshow ───────────────────────────────────────────────────────── */
-
+  /*
+   * Slideshow
+   */
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
 
     const timer = setTimeout(async () => {
       const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
 
-      // Make sure the next image is ready before switching.
       if (!loadedSlides.includes(nextSlide)) {
         await preloadImage(HERO_IMAGES[nextSlide])
 
         setLoadedSlides((slides) =>
           slides.includes(nextSlide)
             ? slides
-            : [...slides, nextSlide]
+            : [...slides, nextSlide],
         )
       }
 
@@ -82,8 +80,9 @@ export function HomeSection({
     return () => clearTimeout(timer)
   }, [currentSlide, loadedSlides, preloadImage])
 
-  /* ─── Clear previous slide after fade ─────────────────────────────────── */
-
+  /*
+   * Remove previous slide after the fade animation.
+   */
   useEffect(() => {
     if (previousSlide === null) return
 
@@ -94,8 +93,9 @@ export function HomeSection({
     return () => clearTimeout(timeout)
   }, [previousSlide])
 
-  /* ─── Page reveal ──────────────────────────────────────────────────────── */
-
+  /*
+   * Page reveal animation.
+   */
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 120)
 
@@ -104,22 +104,19 @@ export function HomeSection({
 
   const currentImage = HERO_IMAGES[currentSlide]
 
-  /* ─── Render ───────────────────────────────────────────────────────────── */
-
   return (
     <section
       className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
       style={{ userSelect: 'none' }}
     >
-      {/* ─── Previous slide ──────────────────────────────────────────────── */}
-
+      {/* Previous slide */}
       {previousSlide !== null &&
         loadedSlides.includes(previousSlide) && (
           <img
             key={`previous-${previousSlide}`}
             src={HERO_IMAGES[previousSlide]}
             alt=""
-            aria-hidden
+            aria-hidden="true"
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             style={{
@@ -130,13 +127,12 @@ export function HomeSection({
           />
         )}
 
-      {/* ─── Current slide ──────────────────────────────────────────────── */}
-
+      {/* Current slide */}
       <img
         key={`current-${currentSlide}`}
         src={currentImage}
         alt=""
-        aria-hidden
+        aria-hidden="true"
         fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
         decoding="async"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -147,14 +143,13 @@ export function HomeSection({
         }}
       />
 
-      {/* ─── Category hover image ────────────────────────────────────────── */}
-
+      {/* Category hover image */}
       {hoveredCat && CATEGORY_IMAGES[hoveredCat] && (
         <img
           key={hoveredCat}
           src={CATEGORY_IMAGES[hoveredCat]}
           alt=""
-          aria-hidden
+          aria-hidden="true"
           loading="lazy"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -166,8 +161,7 @@ export function HomeSection({
         />
       )}
 
-      {/* ─── Category list ───────────────────────────────────────────────── */}
-
+      {/* Category list */}
       <div
         className="absolute top-1/2 -translate-y-1/2 flex flex-col hidden md:flex"
         style={{
@@ -206,29 +200,20 @@ export function HomeSection({
                 style={{
                   fontFamily:
                     "'DM Sans', system-ui, sans-serif",
-
                   fontWeight: 700,
-
                   fontSize:
                     'clamp(0.67rem, 2.1vw, 0.78rem)',
-
                   letterSpacing: '0.22em',
-
                   textTransform: 'uppercase',
-
                   display: 'inline-block',
-
                   color: isDimmed
                     ? 'rgba(255,255,255,0.35)'
                     : 'rgba(255,255,255,0.95)',
-
                   transform: isHovered
                     ? 'translateX(4px)'
                     : 'translateX(0)',
-
                   transition:
                     'color 350ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4,0,0.2,1)',
-
                   textShadow: 'none',
                 }}
               >
@@ -239,13 +224,10 @@ export function HomeSection({
                 className="block h-px"
                 style={{
                   width: isHovered ? '100%' : '0%',
-
                   backgroundColor:
                     'rgba(255,255,255,0.7)',
-
                   transition:
                     'width 350ms cubic-bezier(0.4,0,0.2,1)',
-
                   marginTop: '2px',
                 }}
               />
@@ -254,20 +236,15 @@ export function HomeSection({
         })}
       </div>
 
-      {/* ─── Bottom left ─────────────────────────────────────────────────── */}
-
+      {/* Bottom left */}
       <div
         className="absolute bottom-8 left-10 md:left-14"
         style={{
           opacity: revealed ? 1 : 0,
-
           transition:
             'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-
           zIndex: 2,
-
           mixBlendMode: 'difference',
-
           color: '#ffffff',
         }}
       >
@@ -276,7 +253,6 @@ export function HomeSection({
           style={{
             fontFamily:
               "'DM Sans', system-ui, sans-serif",
-
             fontWeight: 300,
           }}
         >
@@ -284,20 +260,15 @@ export function HomeSection({
         </p>
       </div>
 
-      {/* ─── Social icons ────────────────────────────────────────────────── */}
-
+      {/* Social icons */}
       <div
         className="absolute top-1/2 -translate-y-1/2 right-10 md:right-14 flex flex-col items-center gap-6"
         style={{
           opacity: revealed ? 1 : 0,
-
           transition:
             'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-
           zIndex: 2,
-
           mixBlendMode: 'difference',
-
           color: '#ffffff',
         }}
       >
@@ -336,7 +307,6 @@ export function HomeSection({
               </svg>
             ),
           },
-
           {
             label: 'Telegram',
             href: 'https://t.me/aliabiyar',
@@ -357,7 +327,6 @@ export function HomeSection({
               </svg>
             ),
           },
-
           {
             label: 'WhatsApp',
             href: 'https://wa.me/989124362179',
@@ -387,42 +356,26 @@ export function HomeSection({
               onMouseEnter={() => setHoveredSocial(label)}
               onMouseLeave={() => setHoveredSocial(null)}
             >
-              {/* Tooltip */}
-
               <span
                 style={{
                   position: 'absolute',
-
                   right: 'calc(100% + 14px)',
-
                   top: '50%',
-
                   transform: isHovered
                     ? 'translateY(-50%) translateX(0)'
                     : 'translateY(-50%) translateX(6px)',
-
                   opacity: isHovered ? 1 : 0,
-
                   pointerEvents: 'none',
-
                   whiteSpace: 'nowrap',
-
                   fontFamily:
                     "'DM Sans', system-ui, sans-serif",
-
                   fontSize: '0.58rem',
-
                   fontWeight: 300,
-
                   letterSpacing: '0.16em',
-
                   textTransform: 'uppercase',
-
                   color: 'rgba(255,255,255,0.8)',
-
                   transition:
                     'opacity 250ms ease, transform 250ms ease',
-
                   textShadow: 'none',
                 }}
               >
@@ -439,9 +392,7 @@ export function HomeSection({
                   color: isHovered
                     ? '#ffffff'
                     : 'rgba(255,255,255,0.72)',
-
                   padding: '8px',
-
                   margin: '-8px',
                 }}
               >
