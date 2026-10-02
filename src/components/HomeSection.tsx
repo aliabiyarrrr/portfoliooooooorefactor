@@ -14,6 +14,7 @@ export function HomeSection({
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [loadedSlides, setLoadedSlides] = useState<number[]>([0])
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   const preloadImage = useCallback((src: string) => {
     return new Promise<void>((resolve) => {
@@ -27,8 +28,7 @@ export function HomeSection({
   }, [])
 
   /*
-   * Preload the next slide in the background.
-   * The first slide is NOT delayed by this process.
+   * Preload the next hero image in the background.
    */
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
@@ -56,6 +56,9 @@ export function HomeSection({
 
   /*
    * Slideshow
+   *
+   * The next image is loaded first.
+   * Then the transition starts.
    */
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
@@ -74,6 +77,7 @@ export function HomeSection({
       }
 
       setPreviousSlide(currentSlide)
+      setIsTransitioning(true)
       setCurrentSlide(nextSlide)
     }, 5000)
 
@@ -81,14 +85,32 @@ export function HomeSection({
   }, [currentSlide, loadedSlides, preloadImage])
 
   /*
-   * Remove previous slide after the fade animation.
+   * Give the browser one frame to render the new slide
+   * at opacity 0 before changing it to opacity 1.
+   *
+   * This makes the CSS transition actually animate.
+   */
+  useEffect(() => {
+    if (!isTransitioning) return
+
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsTransitioning(false)
+      })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [isTransitioning])
+
+  /*
+   * Remove the previous image after the crossfade.
    */
   useEffect(() => {
     if (previousSlide === null) return
 
     const timeout = setTimeout(() => {
       setPreviousSlide(null)
-    }, 1300)
+    }, 1250)
 
     return () => clearTimeout(timeout)
   }, [previousSlide])
@@ -109,7 +131,7 @@ export function HomeSection({
       className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
       style={{ userSelect: 'none' }}
     >
-      {/* Previous slide */}
+      {/* Previous slide — fades out */}
       {previousSlide !== null &&
         loadedSlides.includes(previousSlide) && (
           <img
@@ -120,14 +142,15 @@ export function HomeSection({
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             style={{
-              opacity: hoveredCat ? 0 : 1,
+              opacity: hoveredCat ? 0 : isTransitioning ? 0 : 1,
               transition:
-                'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
+                'opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)',
+              zIndex: 1,
             }}
           />
         )}
 
-      {/* Current slide */}
+      {/* Current slide — fades in */}
       <img
         key={`current-${currentSlide}`}
         src={currentImage}
@@ -137,9 +160,10 @@ export function HomeSection({
         decoding="async"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{
-          opacity: hoveredCat ? 0 : 1,
+          opacity: hoveredCat ? 0 : isTransitioning ? 0 : 1,
           transition:
-            'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
+            'opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)',
+          zIndex: 2,
         }}
       />
 
@@ -156,7 +180,8 @@ export function HomeSection({
           style={{
             opacity: 1,
             transition:
-              'opacity 700ms cubic-bezier(0.4,0,0.2,1)',
+              'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 3,
           }}
         />
       )}
@@ -168,14 +193,16 @@ export function HomeSection({
           left: 'clamp(3rem, 8vw, 7rem)',
           opacity: revealed ? 1 : 0,
           transition:
-            'opacity 900ms cubic-bezier(0.4,0,0.2,1) 400ms',
+            'opacity 900ms cubic-bezier(0.4, 0, 0.2, 1) 400ms',
           mixBlendMode: 'difference',
           color: '#ffffff',
+          zIndex: 5,
         }}
       >
         {WORK_CATEGORIES.map((cat) => {
           const isHovered = hoveredCat === cat
-          const isDimmed = hoveredCat !== null && !isHovered
+          const isDimmed =
+            hoveredCat !== null && !isHovered
 
           return (
             <button
@@ -213,7 +240,7 @@ export function HomeSection({
                     ? 'translateX(4px)'
                     : 'translateX(0)',
                   transition:
-                    'color 350ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4,0,0.2,1)',
+                    'color 350ms cubic-bezier(0.4, 0, 0.2, 1), transform 350ms cubic-bezier(0.4, 0, 0.2, 1)',
                   textShadow: 'none',
                 }}
               >
@@ -227,7 +254,7 @@ export function HomeSection({
                   backgroundColor:
                     'rgba(255,255,255,0.7)',
                   transition:
-                    'width 350ms cubic-bezier(0.4,0,0.2,1)',
+                    'width 350ms cubic-bezier(0.4, 0, 0.2, 1)',
                   marginTop: '2px',
                 }}
               />
@@ -242,8 +269,8 @@ export function HomeSection({
         style={{
           opacity: revealed ? 1 : 0,
           transition:
-            'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-          zIndex: 2,
+            'opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1) 700ms',
+          zIndex: 5,
           mixBlendMode: 'difference',
           color: '#ffffff',
         }}
@@ -266,8 +293,8 @@ export function HomeSection({
         style={{
           opacity: revealed ? 1 : 0,
           transition:
-            'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-          zIndex: 2,
+            'opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1) 700ms',
+          zIndex: 5,
           mixBlendMode: 'difference',
           color: '#ffffff',
         }}
@@ -353,8 +380,12 @@ export function HomeSection({
             <div
               key={label}
               className="relative flex items-center justify-center"
-              onMouseEnter={() => setHoveredSocial(label)}
-              onMouseLeave={() => setHoveredSocial(null)}
+              onMouseEnter={() =>
+                setHoveredSocial(label)
+              }
+              onMouseLeave={() =>
+                setHoveredSocial(null)
+              }
             >
               <span
                 style={{
