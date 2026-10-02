@@ -3,21 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Ali Abiyar Portfolio</title>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K6W3JD3PK7"></script>
+    <!-- Open Graph -->
+    <meta property="og:title" content="Ali Abiyar Portfolio" />
+    <meta
+      property="og:description"
+      content="Ali Abiyar — Photographer & Filmmaker"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aliabiyar.com/" />
+
+    <!-- Twitter / Social Preview -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Ali Abiyar Portfolio" />
+    <meta
+      name="twitter:description"
+      content="Ali Abiyar — Photographer & Filmmaker"
+    />
+
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-K6W3JD3PK7"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-      gtag('config', 'G-K6W3JD3PK7');
+      gtag("config", "G-K6W3JD3PK7");
     </script>
   </head>
 
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
