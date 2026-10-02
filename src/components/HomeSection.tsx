@@ -1,456 +1,66 @@
-import { useState, useEffect, useCallback } from 'react'
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-import type { Page, WorkCategory } from '../data/siteData'
-import { HERO_IMAGES, CATEGORY_IMAGES, WORK_CATEGORIES } from '../data/siteData'
+    <link
+      rel="preload"
+      as="image"
+      href="/hero1.webp"
+      type="image/webp"
+      fetchpriority="high"
+    />
 
-/* ─── HomeSection ─────────────────────────────────────────────────────────── */
+    <title>Ali Abiyar Portfolio</title>
 
-export function HomeSection({
-  navigate,
-}: {
-  navigate: (p: Page, cat?: WorkCategory) => void
-}) {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [previousSlide, setPreviousSlide] = useState<number | null>(null)
-  const [hoveredCat, setHoveredCat] = useState<WorkCategory | null>(null)
-  const [hoveredSocial, setHoveredSocial] = useState<string | null>(null)
-  const [revealed, setRevealed] = useState(false)
-  const [loadedSlides, setLoadedSlides] = useState<number[]>([0])
+    <!-- Open Graph / Instagram & Social Preview -->
+    <meta property="og:title" content="Ali Abiyar Portfolio" />
+    <meta
+      property="og:description"
+      content="Ali Abiyar — Photographer & Filmmaker"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aliabiyar.com/" />
+    <meta
+      property="og:image"
+      content="https://aliabiyar.com/DSC01743%20copy.jpg"
+    />
 
-  /* ─── Image preload ───────────────────────────────────────────────────── */
+    <!-- Twitter / Social Preview -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ali Abiyar Portfolio" />
+    <meta
+      name="twitter:description"
+      content="Ali Abiyar — Photographer & Filmmaker"
+    />
+    <meta
+      name="twitter:image"
+      content="https://aliabiyar.com/DSC01743%20copy.jpg"
+    />
 
-  const preloadImage = useCallback((src: string) => {
-    return new Promise<void>((resolve) => {
-      const img = new Image()
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-K6W3JD3PK7"
+    ></script>
 
-      img.onload = () => resolve()
-      img.onerror = () => resolve()
+    <script>
+      window.dataLayer = window.dataLayer || [];
 
-      img.src = src
-    })
-  }, [])
-
-  /* ─── Preload next slide in background ────────────────────────────────── */
-
-  useEffect(() => {
-    if (HERO_IMAGES.length <= 1) return
-
-    const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
-
-    if (loadedSlides.includes(nextSlide)) return
-
-    let cancelled = false
-
-    preloadImage(HERO_IMAGES[nextSlide]).then(() => {
-      if (cancelled) return
-
-      setLoadedSlides((slides) =>
-        slides.includes(nextSlide)
-          ? slides
-          : [...slides, nextSlide]
-      )
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [currentSlide, loadedSlides, preloadImage])
-
-  /* ─── Slideshow ───────────────────────────────────────────────────────── */
-
-  useEffect(() => {
-    if (HERO_IMAGES.length <= 1) return
-
-    const timer = setTimeout(async () => {
-      const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
-
-      // Make sure the next image is ready before switching.
-      if (!loadedSlides.includes(nextSlide)) {
-        await preloadImage(HERO_IMAGES[nextSlide])
-
-        setLoadedSlides((slides) =>
-          slides.includes(nextSlide)
-            ? slides
-            : [...slides, nextSlide]
-        )
+      function gtag() {
+        dataLayer.push(arguments);
       }
 
-      setPreviousSlide(currentSlide)
-      setCurrentSlide(nextSlide)
-    }, 5000)
+      gtag("js", new Date());
 
-    return () => clearTimeout(timer)
-  }, [currentSlide, loadedSlides, preloadImage])
+      gtag("config", "G-K6W3JD3PK7");
+    </script>
+  </head>
 
-  /* ─── Clear previous slide after fade ─────────────────────────────────── */
+  <body>
+    <div id="root"></div>
 
-  useEffect(() => {
-    if (previousSlide === null) return
-
-    const timeout = setTimeout(() => {
-      setPreviousSlide(null)
-    }, 1300)
-
-    return () => clearTimeout(timeout)
-  }, [previousSlide])
-
-  /* ─── Page reveal ──────────────────────────────────────────────────────── */
-
-  useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), 120)
-
-    return () => clearTimeout(t)
-  }, [])
-
-  const currentImage = HERO_IMAGES[currentSlide]
-
-  /* ─── Render ───────────────────────────────────────────────────────────── */
-
-  return (
-    <section
-      className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
-      style={{ userSelect: 'none' }}
-    >
-      {/* ─── Previous slide ──────────────────────────────────────────────── */}
-
-      {previousSlide !== null &&
-        loadedSlides.includes(previousSlide) && (
-          <img
-            key={`previous-${previousSlide}`}
-            src={HERO_IMAGES[previousSlide]}
-            alt=""
-            aria-hidden
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            style={{
-              opacity: hoveredCat ? 0 : 1,
-              transition:
-                'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
-            }}
-          />
-        )}
-
-      {/* ─── Current slide ──────────────────────────────────────────────── */}
-
-      <img
-        key={`current-${currentSlide}`}
-        src={currentImage}
-        alt=""
-        aria-hidden
-        fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-        style={{
-          opacity: hoveredCat ? 0 : 1,
-          transition:
-            'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
-        }}
-      />
-
-      {/* ─── Category hover image ────────────────────────────────────────── */}
-
-      {hoveredCat && CATEGORY_IMAGES[hoveredCat] && (
-        <img
-          key={hoveredCat}
-          src={CATEGORY_IMAGES[hoveredCat]}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{
-            opacity: 1,
-            transition:
-              'opacity 700ms cubic-bezier(0.4,0,0.2,1)',
-          }}
-        />
-      )}
-
-      {/* ─── Category list ───────────────────────────────────────────────── */}
-
-      <div
-        className="absolute top-1/2 -translate-y-1/2 flex flex-col hidden md:flex"
-        style={{
-          left: 'clamp(3rem, 8vw, 7rem)',
-          opacity: revealed ? 1 : 0,
-          transition:
-            'opacity 900ms cubic-bezier(0.4,0,0.2,1) 400ms',
-          mixBlendMode: 'difference',
-          color: '#ffffff',
-        }}
-      >
-        {WORK_CATEGORIES.map((cat) => {
-          const isHovered = hoveredCat === cat
-          const isDimmed = hoveredCat !== null && !isHovered
-
-          return (
-            <button
-              key={cat}
-              onMouseEnter={() => {
-                setHoveredCat(cat)
-
-                const image = CATEGORY_IMAGES[cat]
-
-                if (image) {
-                  preloadImage(image)
-                }
-              }}
-              onMouseLeave={() => setHoveredCat(null)}
-              onClick={() => navigate('work', cat)}
-              className="text-left focus:outline-none"
-              style={{
-                padding: '4px 20px 4px 0',
-              }}
-            >
-              <span
-                style={{
-                  fontFamily:
-                    "'DM Sans', system-ui, sans-serif",
-
-                  fontWeight: 700,
-
-                  fontSize:
-                    'clamp(0.67rem, 2.1vw, 0.78rem)',
-
-                  letterSpacing: '0.22em',
-
-                  textTransform: 'uppercase',
-
-                  display: 'inline-block',
-
-                  color: isDimmed
-                    ? 'rgba(255,255,255,0.35)'
-                    : 'rgba(255,255,255,0.95)',
-
-                  transform: isHovered
-                    ? 'translateX(4px)'
-                    : 'translateX(0)',
-
-                  transition:
-                    'color 350ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4,0,0.2,1)',
-
-                  textShadow: 'none',
-                }}
-              >
-                {cat}
-              </span>
-
-              <span
-                className="block h-px"
-                style={{
-                  width: isHovered ? '100%' : '0%',
-
-                  backgroundColor:
-                    'rgba(255,255,255,0.7)',
-
-                  transition:
-                    'width 350ms cubic-bezier(0.4,0,0.2,1)',
-
-                  marginTop: '2px',
-                }}
-              />
-            </button>
-          )
-        })}
-      </div>
-
-      {/* ─── Bottom left ─────────────────────────────────────────────────── */}
-
-      <div
-        className="absolute bottom-8 left-10 md:left-14"
-        style={{
-          opacity: revealed ? 1 : 0,
-
-          transition:
-            'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-
-          zIndex: 2,
-
-          mixBlendMode: 'difference',
-
-          color: '#ffffff',
-        }}
-      >
-        <p
-          className="text-[0.58rem] tracking-[0.24em] uppercase"
-          style={{
-            fontFamily:
-              "'DM Sans', system-ui, sans-serif",
-
-            fontWeight: 300,
-          }}
-        >
-          Photographer &amp; Filmmaker
-        </p>
-      </div>
-
-      {/* ─── Social icons ────────────────────────────────────────────────── */}
-
-      <div
-        className="absolute top-1/2 -translate-y-1/2 right-10 md:right-14 flex flex-col items-center gap-6"
-        style={{
-          opacity: revealed ? 1 : 0,
-
-          transition:
-            'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
-
-          zIndex: 2,
-
-          mixBlendMode: 'difference',
-
-          color: '#ffffff',
-        }}
-      >
-        {[
-          {
-            label: 'Instagram',
-            href: 'https://www.instagram.com/aliabiyar/',
-            icon: (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect
-                  x="2"
-                  y="2"
-                  width="20"
-                  height="20"
-                  rx="5"
-                  ry="5"
-                />
-                <circle cx="12" cy="12" r="4.5" />
-                <circle
-                  cx="17.5"
-                  cy="6.5"
-                  r="0.8"
-                  fill="currentColor"
-                  stroke="none"
-                />
-              </svg>
-            ),
-          },
-
-          {
-            label: 'Telegram',
-            href: 'https://t.me/aliabiyar',
-            icon: (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M21 3 3 10.5l7 1.5 2 6 3-3.5 5 3.5L21 3z" />
-                <path d="M10 12 21 3" />
-              </svg>
-            ),
-          },
-
-          {
-            label: 'WhatsApp',
-            href: 'https://wa.me/989124362179',
-            icon: (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-              </svg>
-            ),
-          },
-        ].map(({ label, href, icon }) => {
-          const isHovered = hoveredSocial === label
-
-          return (
-            <div
-              key={label}
-              className="relative flex items-center justify-center"
-              onMouseEnter={() => setHoveredSocial(label)}
-              onMouseLeave={() => setHoveredSocial(null)}
-            >
-              {/* Tooltip */}
-
-              <span
-                style={{
-                  position: 'absolute',
-
-                  right: 'calc(100% + 14px)',
-
-                  top: '50%',
-
-                  transform: isHovered
-                    ? 'translateY(-50%) translateX(0)'
-                    : 'translateY(-50%) translateX(6px)',
-
-                  opacity: isHovered ? 1 : 0,
-
-                  pointerEvents: 'none',
-
-                  whiteSpace: 'nowrap',
-
-                  fontFamily:
-                    "'DM Sans', system-ui, sans-serif",
-
-                  fontSize: '0.58rem',
-
-                  fontWeight: 300,
-
-                  letterSpacing: '0.16em',
-
-                  textTransform: 'uppercase',
-
-                  color: 'rgba(255,255,255,0.8)',
-
-                  transition:
-                    'opacity 250ms ease, transform 250ms ease',
-
-                  textShadow: 'none',
-                }}
-              >
-                {label}
-              </span>
-
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="flex items-center justify-center transition-colors duration-300"
-                style={{
-                  color: isHovered
-                    ? '#ffffff'
-                    : 'rgba(255,255,255,0.72)',
-
-                  padding: '8px',
-
-                  margin: '-8px',
-                }}
-              >
-                {icon}
-              </a>
-            </div>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
