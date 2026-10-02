@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import type { Page, WorkCategory } from '../data/siteData'
 import { HERO_IMAGES, CATEGORY_IMAGES, WORK_CATEGORIES } from '../data/siteData'
@@ -17,8 +17,6 @@ export function HomeSection({
   const [revealed, setRevealed] = useState(false)
   const [loadedSlides, setLoadedSlides] = useState<number[]>([0])
 
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
   /* ─── Image preload ───────────────────────────────────────────────────── */
 
   const preloadImage = useCallback((src: string) => {
@@ -32,74 +30,57 @@ export function HomeSection({
     })
   }, [])
 
-  /* ─── Load next slide before showing it ───────────────────────────────── */
-
-  const loadSlide = useCallback(
-    async (index: number) => {
-      if (loadedSlides.includes(index)) return
-
-      await preloadImage(HERO_IMAGES[index])
-
-      setLoadedSlides((slides) =>
-        slides.includes(index) ? slides : [...slides, index]
-      )
-    },
-    [loadedSlides, preloadImage]
-  )
-
-  /* ─── Slideshow ───────────────────────────────────────────────────────── */
-
-  const startTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-
-    timerRef.current = setInterval(async () => {
-      setCurrentSlide((current) => {
-        const next = (current + 1) % HERO_IMAGES.length
-
-        // Keep the previous slide for the fade transition
-        setPreviousSlide(current)
-
-        // Start loading the next image immediately
-        loadSlide(next)
-
-        return next
-      })
-    }, 5000)
-  }, [loadSlide])
+  /* ─── Preload next slide in background ────────────────────────────────── */
 
   useEffect(() => {
-    // Preload only the first image initially
-    preloadImage(HERO_IMAGES[0]).then(() => {
-      setLoadedSlides([0])
+    if (HERO_IMAGES.length <= 1) return
 
-      // Preload the second image in the background
-      if (HERO_IMAGES.length > 1) {
-        preloadImage(HERO_IMAGES[1]).then(() => {
-          setLoadedSlides((slides) =>
-            slides.includes(1) ? slides : [...slides, 1]
-          )
-        })
-      }
+    const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
+
+    if (loadedSlides.includes(nextSlide)) return
+
+    let cancelled = false
+
+    preloadImage(HERO_IMAGES[nextSlide]).then(() => {
+      if (cancelled) return
+
+      setLoadedSlides((slides) =>
+        slides.includes(nextSlide)
+          ? slides
+          : [...slides, nextSlide]
+      )
     })
 
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
+      cancelled = true
     }
-  }, [preloadImage])
+  }, [currentSlide, loadedSlides, preloadImage])
+
+  /* ─── Slideshow ───────────────────────────────────────────────────────── */
 
   useEffect(() => {
-    startTimer()
+    if (HERO_IMAGES.length <= 1) return
 
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
+    const timer = setTimeout(async () => {
+      const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
+
+      // Make sure the next image is ready before switching.
+      if (!loadedSlides.includes(nextSlide)) {
+        await preloadImage(HERO_IMAGES[nextSlide])
+
+        setLoadedSlides((slides) =>
+          slides.includes(nextSlide)
+            ? slides
+            : [...slides, nextSlide]
+        )
       }
-    }
-  }, [startTimer])
+
+      setPreviousSlide(currentSlide)
+      setCurrentSlide(nextSlide)
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [currentSlide, loadedSlides, preloadImage])
 
   /* ─── Clear previous slide after fade ─────────────────────────────────── */
 
@@ -121,8 +102,6 @@ export function HomeSection({
     return () => clearTimeout(t)
   }, [])
 
-  /* ─── Current image ────────────────────────────────────────────────────── */
-
   const currentImage = HERO_IMAGES[currentSlide]
 
   /* ─── Render ───────────────────────────────────────────────────────────── */
@@ -132,7 +111,7 @@ export function HomeSection({
       className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
       style={{ userSelect: 'none' }}
     >
-      {/* ─── Slideshow ───────────────────────────────────────────────────── */}
+      {/* ─── Previous slide ──────────────────────────────────────────────── */}
 
       {previousSlide !== null &&
         loadedSlides.includes(previousSlide) && (
@@ -141,6 +120,7 @@ export function HomeSection({
             src={HERO_IMAGES[previousSlide]}
             alt=""
             aria-hidden
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             style={{
               opacity: hoveredCat ? 0 : 1,
@@ -150,22 +130,22 @@ export function HomeSection({
           />
         )}
 
-      {loadedSlides.includes(currentSlide) && (
-        <img
-          key={`current-${currentSlide}`}
-          src={currentImage}
-          alt=""
-          aria-hidden
-          fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{
-            opacity: hoveredCat ? 0 : 1,
-            transition:
-              'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
-          }}
-        />
-      )}
+      {/* ─── Current slide ──────────────────────────────────────────────── */}
+
+      <img
+        key={`current-${currentSlide}`}
+        src={currentImage}
+        alt=""
+        aria-hidden
+        fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{
+          opacity: hoveredCat ? 0 : 1,
+          transition:
+            'opacity 1200ms cubic-bezier(0.4,0,0.2,1)',
+        }}
+      />
 
       {/* ─── Category hover image ────────────────────────────────────────── */}
 
