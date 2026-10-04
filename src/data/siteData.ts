@@ -20,16 +20,18 @@ export type FilterCategory = 'All' | WorkCategory
 /* ─── hero images ─────────────────────────────────────────────────────────── */
 
 export const HERO_IMAGES = [
-  '/l11.jpg',
-  '/l13.jpg',
-  '/l15.jpg',
-  '/l16.jpg',
-  '/l5.jpg',
-  '/l6.jpg',
-  '/l7.jpg',
-  '/l8.jpg',
-  '/l9.jpg',
   '/DSC01743 copy.jpg',
+  '/l5.jpg',
+  '/hero 9.jpg',
+  '/HeroB.jpg',
+  '/l6.jpg',
+  '/l8.jpg',
+  '/l7.jpg',
+  '/l15.jpg',
+  '/DSC03080 copy.jpg',
+  '/l9.jpg',
+  '/l11.jpg',
+  '/heroA.jpg',
 ]
 
 /* ─── category preview images ─────────────────────────────────────────────── */
