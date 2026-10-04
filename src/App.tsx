@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { Page, WorkCategory, Project } from './data/siteData'
 import { PROJECTS } from './data/siteData'
+import { getProjects } from './lib/projects'
 import { Nav } from './components/Nav'
 import { HomeSection } from './components/HomeSection'
 import { WorkSection } from './components/WorkSection'
@@ -76,6 +77,7 @@ function getPageFromURL(): {
    * /projects/commercial/rosehip-campaign
    * /projects/cafe-restaurants/the-hearth
    */
+
   if (path.startsWith('/projects/')) {
     const parts = path
       .split('/')
@@ -85,8 +87,10 @@ function getPageFromURL(): {
      * parts:
      * ["projects", "fashion", "red-season"]
      */
+
     if (parts.length >= 3) {
       const categorySlugValue = decodeURIComponent(parts[1])
+
       const projectSlug = decodeURIComponent(
         parts.slice(2).join('/')
       )
@@ -95,18 +99,22 @@ function getPageFromURL(): {
         categoryFromSlug(categorySlugValue)
 
       if (category) {
+        /*
+         * First try the static project list.
+         *
+         * If the project isn't there, keep the slug as
+         * projectId so we can resolve it from Sanity later.
+         */
         const project = PROJECTS.find(
           (p) =>
             p.category === category &&
             slugify(p.title) === projectSlug
         )
 
-        if (project) {
-          return {
-            page: 'project',
-            projectId: project.id,
-            category,
-          }
+        return {
+          page: 'project',
+          projectId: project?.id ?? projectSlug,
+          category,
         }
       }
     }
@@ -120,6 +128,7 @@ function getPageFromURL(): {
    *
    * working if someone has an old link.
    */
+
   if (path.startsWith('/project/')) {
     const projectId = decodeURIComponent(
       path.split('/project/')[1] || ''
@@ -133,7 +142,7 @@ function getPageFromURL(): {
 
     return {
       page: project ? 'project' : 'work',
-      projectId: project?.id ?? null,
+      projectId: project?.id ?? projectId,
       category: project?.category ?? null,
     }
   }
@@ -189,6 +198,7 @@ function getPageFromURL(): {
    * Services is intentionally kept in the codebase
    * but is currently hidden from the website.
    */
+
   if (path === '/services') {
     return {
       page: 'home',
@@ -257,17 +267,25 @@ function getURL(
 export default function App() {
   const initialURL = getPageFromURL()
 
+  /*
+   * First try to resolve the project from the static fallback data.
+   *
+   * Sanity projects that aren't present here will be resolved
+   * asynchronously below.
+   */
   const initialProject =
     initialURL.projectId
       ? PROJECTS.find(
-          (p) => p.id === initialURL.projectId
+          (p) =>
+            p.id === initialURL.projectId ||
+            slugify(p.title) === initialURL.projectId
         ) ?? null
       : null
 
   const [page, setPage] = useState<Page>(
     initialURL.page === 'project' &&
     !initialProject
-      ? 'work'
+      ? 'project'
       : initialURL.page
   )
 
@@ -281,6 +299,90 @@ export default function App() {
       initialProject
     )
 
+  /* ── Resolve project from Sanity on hard refresh ────────────────────── */
+
+  /*
+   * When a project exists in Sanity but not in the static PROJECTS array,
+   * the URL still remains valid.
+   *
+   * Example:
+   * /projects/fashion/arghavan-rouzbeh
+   *
+   * On refresh we fetch the Sanity projects and find it by slug.
+   */
+
+  useEffect(() => {
+    if (
+      initialURL.page !== 'project' ||
+      !initialURL.projectId
+    ) {
+      return
+    }
+
+    /*
+     * Already resolved from the static project list.
+     */
+    if (activeProject) {
+      return
+    }
+
+    let cancelled = false
+
+    getProjects()
+      .then((projects) => {
+        if (cancelled) return
+
+        const project = projects.find(
+          (p) =>
+            p.id === initialURL.projectId ||
+            slugify(p.title) === initialURL.projectId
+        )
+
+        if (project) {
+          /*
+           * Project found in Sanity.
+           */
+          setActiveProject(project)
+          setActiveCat(project.category)
+          setPage('project')
+        } else {
+          /*
+           * Project doesn't exist anymore.
+           * Fall back to the projects page.
+           */
+          setPage('work')
+          setActiveCat(initialURL.category)
+
+          window.history.replaceState(
+            {},
+            '',
+            initialURL.category
+              ? getURL(
+                  'work',
+                  null,
+                  initialURL.category
+                )
+              : '/projects'
+          )
+        }
+      })
+      .catch((error) => {
+        console.error(
+          'Failed to load project from Sanity:',
+          error
+        )
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    initialURL.page,
+    initialURL.projectId,
+    initialURL.category,
+    activeProject,
+  ])
+
   /* ── Browser back / forward ─────────────────────────────────────────── */
 
   useEffect(() => {
@@ -291,14 +393,20 @@ export default function App() {
         currentURL.projectId
           ? PROJECTS.find(
               (p) =>
-                p.id === currentURL.projectId
+                p.id === currentURL.projectId ||
+                slugify(p.title) === currentURL.projectId
             ) ?? null
           : null
 
+      /*
+       * If this is a project URL but the project isn't in
+       * the static data, temporarily keep the project page.
+       *
+       * The Sanity resolver below will load the actual project.
+       */
       setPage(
-        currentURL.page === 'project' &&
-        !project
-          ? 'work'
+        currentURL.page === 'project'
+          ? 'project'
           : currentURL.page
       )
 
@@ -307,6 +415,45 @@ export default function App() {
       )
 
       setActiveProject(project)
+
+      /*
+       * If it's a Sanity-only project, resolve it.
+       */
+      if (
+        currentURL.page === 'project' &&
+        currentURL.projectId &&
+        !project
+      ) {
+        getProjects()
+          .then((projects) => {
+            const sanityProject = projects.find(
+              (p) =>
+                p.id === currentURL.projectId ||
+                slugify(p.title) ===
+                  currentURL.projectId
+            )
+
+            if (sanityProject) {
+              setActiveProject(sanityProject)
+              setActiveCat(
+                sanityProject.category
+              )
+              setPage('project')
+            } else {
+              setPage('work')
+              setActiveProject(null)
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Failed to load project from Sanity:',
+              error
+            )
+
+            setPage('work')
+            setActiveProject(null)
+          })
+      }
 
       window.scrollTo({
         top: 0,
@@ -338,6 +485,7 @@ export default function App() {
        * Services is temporarily disabled.
        * The page/component itself is not deleted.
        */
+
       if (p === 'services') {
         return
       }
@@ -391,7 +539,7 @@ export default function App() {
 
       setPage('project')
 
-      setActiveCat(null)
+      setActiveCat(project.category)
 
       window.scrollTo({
         top: 0,
@@ -444,6 +592,9 @@ export default function App() {
         {page === 'work' && (
           <WorkSection
             initialCategory={activeCat}
+            onCategoryChange={(category) =>
+              navigate('work', category)
+            }
             onProjectOpen={openProject}
           />
         )}
