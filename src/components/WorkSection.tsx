@@ -6,9 +6,11 @@ import { getProjects } from '../lib/projects'
 
 export function WorkSection({
   initialCategory,
+  onCategoryChange,
   onProjectOpen,
 }: {
   initialCategory: WorkCategory | null
+  onCategoryChange: (category: WorkCategory | undefined) => void
   onProjectOpen: (p: Project) => void
 }) {
   const [activeCategory, setActiveCategory] = useState<FilterCategory>(
@@ -87,7 +89,13 @@ export function WorkSection({
             return (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  setActiveCategory(cat)
+
+                  onCategoryChange(
+                    cat === 'All' ? undefined : cat
+                  )
+                }}
                 className="shrink-0 transition-colors duration-200"
                 style={{
                   paddingRight: i < allTabs.length - 1 ? '28px' : 0,
