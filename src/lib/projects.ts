@@ -30,8 +30,11 @@ const CATEGORY_MAP: Record<string, WorkCategory> = {
   cafe: 'Cafe & Restaurants',
   restaurant: 'Cafe & Restaurants',
   restaurants: 'Cafe & Restaurants',
-  videos: 'Videos',
-  video: 'Videos',
+  'art & culture': 'Art & Culture',
+  'art-culture': 'Art & Culture',
+  'art and culture': 'Art & Culture',
+  videos: 'Art & Culture',
+  video: 'Art & Culture',
 }
 
 function normalizeCategory(raw: string | undefined): WorkCategory {
