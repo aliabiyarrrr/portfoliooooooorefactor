@@ -41,7 +41,7 @@ export const CATEGORY_IMAGES: Record<WorkCategory, string> = {
   Commercial: '/1commercial .jpg',
   Portraits: '/1Portraits.jpg',
   'Cafe & Restaurants': '/1cafe.jpg',
-  'Art & Culture': '',
+  'Art & Culture': '/Art and Culture.jpg',
 }
 
 export const WORK_CATEGORIES: WorkCategory[] = [
