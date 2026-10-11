@@ -5,7 +5,7 @@ export type WorkCategory =
   | 'Commercial'
   | 'Portraits'
   | 'Cafe & Restaurants'
-  | 'Videos'
+  | 'Art & Culture'
 
 export type Page =
   | 'home'
@@ -41,7 +41,7 @@ export const CATEGORY_IMAGES: Record<WorkCategory, string> = {
   Commercial: '/1commercial .jpg',
   Portraits: '/1Portraits.jpg',
   'Cafe & Restaurants': '/1cafe.jpg',
-  Videos: '',
+  'Art & Culture': '',
 }
 
 export const WORK_CATEGORIES: WorkCategory[] = [
@@ -49,7 +49,7 @@ export const WORK_CATEGORIES: WorkCategory[] = [
   'Commercial',
   'Portraits',
   'Cafe & Restaurants',
-  'Videos',
+  'Art & Culture',
 ]
 
 /* ─── project data ────────────────────────────────────────────────────────── */
@@ -179,7 +179,7 @@ export const PROJECTS: Project[] = [
     id: 'between-frames',
     title: 'Between Frames',
     year: 2024,
-    category: 'Videos',
+    category: 'Art & Culture',
     cover: '/DSC01743 copy.jpg',
     description:
       'A short film about process — the pauses, the reframes, the moments before the shot. 12 minutes, single channel.',
@@ -191,7 +191,7 @@ export const PROJECTS: Project[] = [
     id: 'latitude',
     title: 'Latitude',
     year: 2023,
-    category: 'Videos',
+    category: 'Art & Culture',
     cover: '/DSC01743 copy.jpg',
     description:
       'Travel documentary following a single road from coast to mountain. Shot on 16mm and digital, edited into a 28-minute film.',
