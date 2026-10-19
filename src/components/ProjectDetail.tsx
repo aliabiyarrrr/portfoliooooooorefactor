@@ -249,11 +249,22 @@ function createPTComponents(
 ) {
   return {
     block: {
-      normal: ({ children }: any) => (
-        <p className="px-8 md:px-16 text-[rgba(240,237,232,0.55)] text-sm leading-[1.9] font-light max-w-2xl mb-8">
-          {children}
-        </p>
-      ),
+      normal: ({ children, value }: any) => {
+        // Vimeo's snippet was pasted into a Normal block with inline code
+        // formatting, so inspect the original Portable Text spans too.
+        const text = (value?.children || [])
+          .map((child: any) => child?.text || '')
+          .join('')
+        const src = getVimeoPlayerUrl(text)
+
+        return src ? (
+          <VimeoEmbed src={src} />
+        ) : (
+          <p className="px-8 md:px-16 text-[rgba(240,237,232,0.55)] text-sm leading-[1.9] font-light max-w-2xl mb-8">
+            {children}
+          </p>
+        )
+      },
 
       // A Vimeo iframe pasted as a Portable Text code-style block.
       code: ({ children, value }: any) => {
