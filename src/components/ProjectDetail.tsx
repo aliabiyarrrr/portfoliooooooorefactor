@@ -206,6 +206,37 @@ function ImageRow({
 
 /* ─── Portable Text renderers ────────────────────────────────────────────── */
 
+// Only turn Vimeo's official player URL into an iframe. Arbitrary HTML from
+// Sanity remains inert.
+function getVimeoPlayerUrl(code: unknown): string | null {
+  if (typeof code !== 'string') return null
+
+  const match = code.match(
+    /\bsrc\s*=\s*["'](https:\/\/player\.vimeo\.com\/video\/\d+(?:\?[^"']*)?)["']/i
+  )
+
+  return match?.[1] || null
+}
+
+function VimeoEmbed({ src }: { src: string }) {
+  return (
+    <div className="px-8 md:px-16 py-2 md:py-4 flex justify-center">
+      <div className="w-full max-w-[1200px]">
+        <div className="relative w-full overflow-hidden bg-[#0f0e0d]" style={{ aspectRatio: '16 / 9' }}>
+          <iframe
+            src={src}
+            title="Vimeo video"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+            className="absolute inset-0 h-full w-full border-0"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function createPTComponents(
   onImageClick: (
     src: string,
@@ -224,6 +255,22 @@ function createPTComponents(
         </p>
       ),
 
+      // A Vimeo iframe pasted as a Portable Text code-style block.
+      code: ({ children, value }: any) => {
+        const text = (value?.children || [])
+          .map((child: any) => child?.text || '')
+          .join('')
+        const src = getVimeoPlayerUrl(text)
+
+        return src ? (
+          <VimeoEmbed src={src} />
+        ) : (
+          <pre className="mx-8 md:mx-16 mb-8 overflow-x-auto whitespace-pre-wrap rounded bg-[#151413] p-4 text-xs text-[rgba(240,237,232,0.7)]">
+            <code>{children}</code>
+          </pre>
+        )
+      },
+
       h3: ({ children }: any) => (
         <h3
           className="px-8 md:px-16 font-[Cormorant_Garamond] font-bold text-[#f0ede8] mb-6 mt-4"
@@ -238,6 +285,20 @@ function createPTComponents(
     },
 
     types: {
+      // Sanity's common code object shape: { _type: 'code', code }.
+      code: ({ value }: any) => {
+        const src = getVimeoPlayerUrl(value?.code)
+
+        return src ? (
+          <VimeoEmbed src={src} />
+        ) : (
+          <pre className="mx-8 md:mx-16 mb-8 overflow-x-auto whitespace-pre-wrap rounded bg-[#151413] p-4 text-xs text-[rgba(240,237,232,0.7)]">
+            <code>{value?.code || ''}</code>
+          </pre>
+        )
+      },
+
+
       /* ── Single image ─────────────────────────────────────────────── */
 
       layoutImage: ({ value }: any) => (
