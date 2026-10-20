@@ -46,6 +46,7 @@ interface SanityProject {
   _id: string
   title?: string
   category?: string
+  client?: string
   coverImage?: any
   description?: string
   year?: number
@@ -76,6 +77,7 @@ export async function getProjects(): Promise<Project[]> {
       item.year ||
       (item._createdAt ? new Date(item._createdAt).getFullYear() : new Date().getFullYear()),
     category: normalizeCategory(item.category),
+    client: item.client,
     cover: urlFor(item.coverImage),
     description: item.description || '',
     images:
