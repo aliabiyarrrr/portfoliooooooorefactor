@@ -65,6 +65,7 @@ function getPageFromURL(): {
   page: Page
   projectId: string | null
   category: WorkCategory | null
+  client: string | null
 } {
   const path =
     window.location.pathname.replace(/\/+$/, '') || '/'
@@ -115,6 +116,7 @@ function getPageFromURL(): {
           page: 'project',
           projectId: project?.id ?? projectSlug,
           category,
+          client: null,
         }
       }
     }
@@ -144,6 +146,7 @@ function getPageFromURL(): {
       page: project ? 'project' : 'work',
       projectId: project?.id ?? projectId,
       category: project?.category ?? null,
+      client: null,
     }
   }
 
@@ -154,6 +157,7 @@ function getPageFromURL(): {
       page: 'contact',
       projectId: null,
       category: null,
+      client: null,
     }
   }
 
@@ -164,6 +168,7 @@ function getPageFromURL(): {
       page: 'about',
       projectId: null,
       category: null,
+      client: null,
     }
   }
 
@@ -175,6 +180,7 @@ function getPageFromURL(): {
     )
 
     const categoryParam = params.get('category')
+    const client = params.get('client')
 
     const category = categoryParam
       ? categoryFromSlug(categoryParam) ??
@@ -189,6 +195,7 @@ function getPageFromURL(): {
       page: 'work',
       projectId: null,
       category,
+      client,
     }
   }
 
@@ -204,6 +211,7 @@ function getPageFromURL(): {
       page: 'home',
       projectId: null,
       category: null,
+      client: null,
     }
   }
 
@@ -213,6 +221,7 @@ function getPageFromURL(): {
     page: 'home',
     projectId: null,
     category: null,
+    client: null,
   }
 }
 
@@ -221,7 +230,8 @@ function getPageFromURL(): {
 function getURL(
   page: Page,
   project?: Project | null,
-  category?: WorkCategory | null
+  category?: WorkCategory | null,
+  client?: string | null
 ) {
   /* ── Project ─────────────────────────────────────────────────────────── */
 
@@ -240,6 +250,10 @@ function getURL(
   /* ── Work ────────────────────────────────────────────────────────────── */
 
   if (page === 'work') {
+    if (client) {
+      return `/projects?client=${encodeURIComponent(client)}`
+    }
+
     if (category) {
       return `/projects?category=${encodeURIComponent(
         categorySlug(category)
@@ -293,6 +307,9 @@ export default function App() {
     useState<WorkCategory | null>(
       initialURL.category
     )
+
+  const [activeClient, setActiveClient] =
+    useState<string | null>(initialURL.client)
 
   const [activeProject, setActiveProject] =
     useState<Project | null>(
@@ -413,6 +430,7 @@ export default function App() {
       setActiveCat(
         currentURL.category
       )
+      setActiveClient(currentURL.client)
 
       setActiveProject(project)
 
@@ -507,6 +525,7 @@ export default function App() {
       setActiveCat(
         cat ?? null
       )
+      setActiveClient(null)
 
       if (p !== 'project') {
         setActiveProject(null)
@@ -519,6 +538,21 @@ export default function App() {
     },
     []
   )
+
+  const showClientProjects = useCallback((client: string) => {
+    const url = getURL('work', null, null, client)
+
+    window.history.pushState({}, '', url)
+    setPage('work')
+    setActiveCat(null)
+    setActiveClient(client)
+    setActiveProject(null)
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    })
+  }, [])
 
   /* ── Open project ───────────────────────────────────────────────────── */
 
@@ -563,6 +597,7 @@ export default function App() {
     setActiveProject(null)
 
     setActiveCat(null)
+    setActiveClient(null)
 
     window.scrollTo({
       top: 0,
@@ -592,6 +627,7 @@ export default function App() {
         {page === 'work' && (
           <WorkSection
             initialCategory={activeCat}
+            initialClient={activeClient}
             onCategoryChange={(category) =>
               navigate('work', category)
             }
@@ -605,6 +641,7 @@ export default function App() {
               project={activeProject}
               onBack={goToWork}
               onOpenProject={openProject}
+              onClientClick={showClientProjects}
             />
           )}
 
