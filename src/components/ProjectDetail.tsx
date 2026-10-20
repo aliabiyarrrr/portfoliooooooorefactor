@@ -820,7 +820,7 @@ export function ProjectDetail({
 
           {project.description && (
             <div className="mt-10 max-w-xl">
-              <p className="text-[rgba(240,237,232,0.55)] text-sm leading-[1.9] font-light">
+              <p className="text-[rgba(240,237,232,0.55)] text-sm leading-[1.9] font-light text-justify whitespace-pre-line">
                 {project.description}
               </p>
             </div>
