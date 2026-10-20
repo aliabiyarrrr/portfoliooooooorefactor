@@ -64,7 +64,7 @@ export function Nav({
           onClick={() => go('home')}
           className="hover:opacity-40 transition-opacity duration-300 uppercase"
           style={{
-            fontFamily: "'Fraunces', Georgia, serif",
+           fontFamily: "'DM Sans', system-ui, sans-serif",
             fontWeight: 900,
             fontSize: '0.85rem',
             letterSpacing: '0.1em',
