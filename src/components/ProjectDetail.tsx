@@ -592,10 +592,12 @@ export function ProjectDetail({
   project,
   onBack,
   onOpenProject,
+  onClientClick,
 }: {
   project: Project
   onBack: () => void
   onOpenProject: (p: Project) => void
+  onClientClick?: (client: string) => void
 }) {
   const [headerVisible, setHeaderVisible] =
     useState(false)
@@ -615,17 +617,8 @@ export function ProjectDetail({
     return () => clearTimeout(t)
   }, [project.id])
 
-  const clientLabel =
-    project.category === 'Commercial'
-      ? 'Confidential client'
-      : project.category === 'Fashion'
-        ? 'Personal / Fashion'
-        : project.category === 'Portraits'
-          ? 'Personal / Portrait'
-          : project.category ===
-              'Cafe & Restaurants'
-            ? 'Café & Restaurant'
-            : 'Personal / Video'
+  const projectClient =
+    (project as Project & { client?: string }).client
 
   const hasCustomContent =
     Array.isArray(project.content) &&
@@ -787,9 +780,18 @@ export function ProjectDetail({
                   Client
                 </p>
 
-                <p className="text-[rgba(240,237,232,0.7)] text-[0.75rem]">
-                  {clientLabel}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (projectClient) {
+                      onClientClick?.(projectClient)
+                    }
+                  }}
+                  disabled={!projectClient}
+                  className="text-[rgba(240,237,232,0.7)] text-[0.75rem] text-left hover:underline disabled:cursor-default"
+                >
+                  {projectClient || '—'}
+                </button>
               </div>
 
               <div>
@@ -799,19 +801,6 @@ export function ProjectDetail({
 
                 <p className="text-[rgba(240,237,232,0.7)] text-[0.75rem]">
                   {project.year}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[rgba(240,237,232,0.25)] text-[0.6rem] tracking-[0.22em] uppercase mb-1">
-                  Medium
-                </p>
-
-                <p className="text-[rgba(240,237,232,0.7)] text-[0.75rem]">
-                  {project.category ===
-                  'Videos'
-                    ? 'Film & Digital'
-                    : 'Photography'}
                 </p>
               </div>
 
