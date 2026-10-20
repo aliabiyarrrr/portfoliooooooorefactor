@@ -59,6 +59,7 @@ export interface Project {
   title: string
   year: number
   category: WorkCategory
+  client?: string
   cover: string
   description: string
   images: string[]
