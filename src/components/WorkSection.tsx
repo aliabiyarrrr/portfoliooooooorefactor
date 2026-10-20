@@ -6,16 +6,19 @@ import { getProjects } from '../lib/projects'
 
 export function WorkSection({
   initialCategory,
+  initialClient,
   onCategoryChange,
   onProjectOpen,
 }: {
   initialCategory: WorkCategory | null
+  initialClient: string | null
   onCategoryChange: (category: WorkCategory | undefined) => void
   onProjectOpen: (p: Project) => void
 }) {
   const [activeCategory, setActiveCategory] = useState<FilterCategory>(
     initialCategory ?? 'All'
   )
+  const [activeClient, setActiveClient] = useState<string | null>(initialClient)
   const [projects, setProjects] = useState<Project[]>([])
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -39,13 +42,24 @@ export function WorkSection({
   }, [])
 
   useEffect(() => {
-    if (initialCategory) setActiveCategory(initialCategory)
+    setActiveCategory(initialCategory ?? 'All')
   }, [initialCategory])
+
+  useEffect(() => {
+    setActiveClient(initialClient)
+  }, [initialClient])
 
   const allTabs: FilterCategory[] = ['All', ...WORK_CATEGORIES]
 
-  const filtered =
-    activeCategory === 'All'
+  const filtered = activeClient
+    ? projects
+        .filter(
+          (project) =>
+            project.client?.trim().toLowerCase() ===
+            activeClient.trim().toLowerCase()
+        )
+        .sort((a, b) => b.year - a.year)
+    : activeCategory === 'All'
       ? [...projects].sort((a, b) => b.year - a.year)
       : projects.filter((p) => p.category === activeCategory)
 
@@ -91,6 +105,7 @@ export function WorkSection({
                 key={cat}
                 onClick={() => {
                   setActiveCategory(cat)
+                  setActiveClient(null)
 
                   onCategoryChange(
                     cat === 'All' ? undefined : cat
