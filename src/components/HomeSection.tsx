@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import type { Page, WorkCategory } from '../data/siteData'
-import { HERO_IMAGES, CATEGORY_IMAGES, WORK_CATEGORIES } from '../data/siteData'
+import {
+  HERO_IMAGES,
+  CATEGORY_IMAGES,
+  WORK_CATEGORIES,
+} from '../data/siteData'
 
 export function HomeSection({
   navigate,
@@ -15,6 +19,7 @@ export function HomeSection({
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [loadedSlides, setLoadedSlides] = useState<number[]>([0])
+  const [isMobile, setIsMobile] = useState(false)
 
   const preloadImage = useCallback((src: string) => {
     return new Promise<void>((resolve) => {
@@ -22,18 +27,53 @@ export function HomeSection({
 
       img.onload = () => resolve()
       img.onerror = () => resolve()
-
       img.src = src
     })
   }, [])
 
-  /*
-   * Preload the next slide in the background.
-   */
+  // Detect mobile viewport and update when the viewport changes.
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+
+    const updateViewport = () => setIsMobile(mediaQuery.matches)
+
+    updateViewport()
+    mediaQuery.addEventListener('change', updateViewport)
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateViewport)
+    }
+  }, [])
+
+  // On mobile, skip slide 4 (index 3).
+  const getNextSlide = useCallback(
+    (from: number) => {
+      let next = (from + 1) % HERO_IMAGES.length
+
+      if (isMobile && next === 3) {
+        next = (next + 1) % HERO_IMAGES.length
+      }
+
+      return next
+    },
+    [isMobile],
+  )
+
+  // If the viewport changes to mobile while slide 4 is visible,
+  // immediately move to the next eligible slide.
+  useEffect(() => {
+    if (isMobile && currentSlide === 3) {
+      setPreviousSlide(null)
+      setIsFading(false)
+      setCurrentSlide(4 % HERO_IMAGES.length)
+    }
+  }, [isMobile, currentSlide])
+
+  // Preload the next eligible slide.
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
 
-    const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
+    const nextSlide = getNextSlide(currentSlide)
 
     if (loadedSlides.includes(nextSlide)) return
 
@@ -52,16 +92,14 @@ export function HomeSection({
     return () => {
       cancelled = true
     }
-  }, [currentSlide, loadedSlides, preloadImage])
+  }, [currentSlide, loadedSlides, preloadImage, getNextSlide])
 
-  /*
-   * Slideshow
-   */
+  // Slideshow timer.
   useEffect(() => {
     if (HERO_IMAGES.length <= 1) return
 
     const timer = setTimeout(async () => {
-      const nextSlide = (currentSlide + 1) % HERO_IMAGES.length
+      const nextSlide = getNextSlide(currentSlide)
 
       if (!loadedSlides.includes(nextSlide)) {
         await preloadImage(HERO_IMAGES[nextSlide])
@@ -82,11 +120,9 @@ export function HomeSection({
     }, 5000)
 
     return () => clearTimeout(timer)
-  }, [currentSlide, loadedSlides, preloadImage])
+  }, [currentSlide, loadedSlides, preloadImage, getNextSlide])
 
-  /*
-   * Remove the previous image after the 450ms fade.
-   */
+  // Remove the previous image after the fade transition.
   useEffect(() => {
     if (!isFading || previousSlide === null) return
 
@@ -98,25 +134,14 @@ export function HomeSection({
     return () => clearTimeout(timeout)
   }, [isFading, previousSlide])
 
-  /*
-   * Page reveal animation.
-   */
+  // Page reveal animation.
   useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), 120)
+    const timer = setTimeout(() => setRevealed(true), 120)
 
-    return () => clearTimeout(t)
+    return () => clearTimeout(timer)
   }, [])
 
   const currentImage = HERO_IMAGES[currentSlide]
-
-  /*
-   * Slide 4: shift crop to the left on mobile only.
-   * Desktop remains centered.
-   */
-  const getSlideImagePosition = (slideIndex: number) =>
-    slideIndex === 3
-      ? 'object-[25%_center] md:object-center'
-      : 'object-center'
 
   return (
     <section
@@ -125,14 +150,15 @@ export function HomeSection({
     >
       {/* Previous slide */}
       {previousSlide !== null &&
-        loadedSlides.includes(previousSlide) && (
+        loadedSlides.includes(previousSlide) &&
+        !(isMobile && previousSlide === 3) && (
           <img
             key={`previous-${previousSlide}`}
             src={HERO_IMAGES[previousSlide]}
             alt=""
             aria-hidden="true"
             decoding="async"
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${getSlideImagePosition(previousSlide)}`}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             style={{
               opacity: isFading ? 0 : 1,
               transition:
@@ -142,20 +168,22 @@ export function HomeSection({
         )}
 
       {/* Current slide */}
-      <img
-        key={`current-${currentSlide}`}
-        src={currentImage}
-        alt=""
-        aria-hidden="true"
-        fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
-        decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${getSlideImagePosition(currentSlide)}`}
-        style={{
-          opacity: hoveredCat ? 0 : 1,
-          transition:
-            'opacity 450ms cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
-      />
+      {!(isMobile && currentSlide === 3) && (
+        <img
+          key={`current-${currentSlide}`}
+          src={currentImage}
+          alt=""
+          aria-hidden="true"
+          fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{
+            opacity: hoveredCat ? 0 : 1,
+            transition:
+              'opacity 450ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        />
+      )}
 
       {/* Category hover image */}
       {hoveredCat && CATEGORY_IMAGES[hoveredCat] && (
@@ -166,7 +194,7 @@ export function HomeSection({
           aria-hidden="true"
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{
             opacity: 1,
             transition:
@@ -189,8 +217,7 @@ export function HomeSection({
       >
         {WORK_CATEGORIES.map((cat) => {
           const isHovered = hoveredCat === cat
-          const isDimmed =
-            hoveredCat !== null && !isHovered
+          const isDimmed = hoveredCat !== null && !isHovered
 
           return (
             <button
@@ -199,34 +226,25 @@ export function HomeSection({
                 setHoveredCat(cat)
 
                 const image = CATEGORY_IMAGES[cat]
-
-                if (image) {
-                  preloadImage(image)
-                }
+                if (image) preloadImage(image)
               }}
               onMouseLeave={() => setHoveredCat(null)}
               onClick={() => navigate('work', cat)}
               className="text-left focus:outline-none"
-              style={{
-                padding: '4px 20px 4px 0',
-              }}
+              style={{ padding: '4px 20px 4px 0' }}
             >
               <span
                 style={{
-                  fontFamily:
-                    "'DM Sans', system-ui, sans-serif",
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontWeight: 700,
-                  fontSize:
-                    'clamp(0.67rem, 2.1vw, 0.78rem)',
+                  fontSize: 'clamp(0.67rem, 2.1vw, 0.78rem)',
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
                   display: 'inline-block',
                   color: isDimmed
                     ? 'rgba(255,255,255,0.35)'
                     : 'rgba(255,255,255,0.95)',
-                  transform: isHovered
-                    ? 'translateX(4px)'
-                    : 'translateX(0)',
+                  transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
                   transition:
                     'color 350ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4,0,0.2,1)',
                   textShadow: 'none',
@@ -239,8 +257,7 @@ export function HomeSection({
                 className="block h-px"
                 style={{
                   width: isHovered ? '100%' : '0%',
-                  backgroundColor:
-                    'rgba(255,255,255,0.7)',
+                  backgroundColor: 'rgba(255,255,255,0.7)',
                   transition:
                     'width 350ms cubic-bezier(0.4,0,0.2,1)',
                   marginTop: '2px',
@@ -266,8 +283,7 @@ export function HomeSection({
         <p
           className="text-[0.58rem] tracking-[0.24em] uppercase"
           style={{
-            fontFamily:
-              "'DM Sans', system-ui, sans-serif",
+            fontFamily: "'DM Sans', system-ui, sans-serif",
             fontWeight: 300,
           }}
         >
@@ -281,7 +297,7 @@ export function HomeSection({
         style={{
           opacity: revealed ? 1 : 0,
           transition:
-            'opacity 1000ms cubic-bezier(0.4,0,0.2,1) 700ms',
+            'opacity 1000ms cubic-bezier(0.4,0.2,0.2,1) 700ms',
           zIndex: 2,
           mixBlendMode: 'difference',
           color: '#ffffff',
@@ -361,12 +377,8 @@ export function HomeSection({
             <div
               key={label}
               className="relative flex items-center justify-center"
-              onMouseEnter={() =>
-                setHoveredSocial(label)
-              }
-              onMouseLeave={() =>
-                setHoveredSocial(null)
-              }
+              onMouseEnter={() => setHoveredSocial(label)}
+              onMouseLeave={() => setHoveredSocial(null)}
             >
               <span
                 style={{
@@ -379,8 +391,7 @@ export function HomeSection({
                   opacity: isHovered ? 1 : 0,
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
-                  fontFamily:
-                    "'DM Sans', system-ui, sans-serif",
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontSize: '0.58rem',
                   fontWeight: 300,
                   letterSpacing: '0.16em',
@@ -401,9 +412,7 @@ export function HomeSection({
                 aria-label={label}
                 className="flex items-center justify-center transition-colors duration-300"
                 style={{
-                  color: isHovered
-                    ? '#ffffff'
-                    : 'rgba(255,255,255,0.72)',
+                  color: isHovered ? '#ffffff' : 'rgba(255,255,255,0.72)',
                   padding: '8px',
                   margin: '-8px',
                 }}
