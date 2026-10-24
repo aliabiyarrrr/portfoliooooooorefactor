@@ -76,7 +76,6 @@ export function HomeSection({
       setPreviousSlide(currentSlide)
       setCurrentSlide(nextSlide)
 
-      // Trigger the CSS transition on the next render.
       requestAnimationFrame(() => {
         setIsFading(true)
       })
@@ -110,6 +109,15 @@ export function HomeSection({
 
   const currentImage = HERO_IMAGES[currentSlide]
 
+  /*
+   * Slide 4: shift crop to the left on mobile only.
+   * Desktop remains centered.
+   */
+  const getSlideImagePosition = (slideIndex: number) =>
+    slideIndex === 3
+      ? 'object-[25%_center] md:object-center'
+      : 'object-center'
+
   return (
     <section
       className="relative w-full h-screen overflow-hidden bg-[#0c0c0b]"
@@ -124,7 +132,7 @@ export function HomeSection({
             alt=""
             aria-hidden="true"
             decoding="async"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${getSlideImagePosition(previousSlide)}`}
             style={{
               opacity: isFading ? 0 : 1,
               transition:
@@ -141,7 +149,7 @@ export function HomeSection({
         aria-hidden="true"
         fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${getSlideImagePosition(currentSlide)}`}
         style={{
           opacity: hoveredCat ? 0 : 1,
           transition:
@@ -158,7 +166,7 @@ export function HomeSection({
           aria-hidden="true"
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
           style={{
             opacity: 1,
             transition:
@@ -295,13 +303,7 @@ export function HomeSection({
                 strokeLinejoin="round"
                 aria-hidden="true"
               >
-                <rect
-                  x="2"
-                  y="2"
-                  width="20"
-                  height="20"
-                  rx="5"
-                />
+                <rect x="2" y="2" width="20" height="20" rx="5" />
                 <circle cx="12" cy="12" r="4.5" />
                 <circle
                   cx="17.5"
